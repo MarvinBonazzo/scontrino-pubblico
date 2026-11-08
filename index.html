@@ -1,0 +1,501 @@
+<title>Scontrino pubblico</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: stesso scontrino dello stipendio. Avvio, stampa animata, risultato con barra della spesa per residente e due elenchi: dove vanno e da dove arrivano */
+:root{
+  --bg:#000000; --paper:#14181b; --field:#0a0d0f; --ink:#e8edf0; --muted:#98a6af; --rule:#2a3137;
+  --accent:#3d7bf0; --accent-ink:#ffffff; --accent-soft:#13264a;
+  --b1:#2f5bd3; --b2:#5b8def; --b3:#9cc3ff; --o1:#ff8c2e; --o2:#ffb36b; --o3:#ffd3a8; --rest:#4a555d; --in:#ff8c2e;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:32px 56px}
+.wrap{max-width:820px;margin:0 auto}
+.screen{display:flex;flex-direction:column;gap:24px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6.5vw,3.3rem);line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance;text-align:center}
+h2{font-family:var(--display);font-weight:700;font-size:1.45rem;margin:0;text-wrap:balance;line-height:1.2;text-align:center}
+h3{font-family:var(--display);font-weight:700;font-size:1.12rem;margin:0;text-align:center}
+p{margin:0}
+.lede{color:var(--muted);max-width:52ch;font-size:1.08rem;text-align:center;margin:0 auto}
+.panel{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:20px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.hint{font-size:.88rem;color:var(--muted);text-align:center;max-width:60ch;margin:6px auto 0}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* Avvio */
+.intro{min-height:70vh;justify-content:center;align-items:center;text-align:center}
+.cta{font-family:var(--display);font-weight:700;font-size:1.15rem;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:14px 26px;cursor:pointer}
+.cta:hover{filter:brightness(1.07)}
+.stub{font-family:var(--mono);font-size:.85rem;color:var(--muted);border:1px dashed var(--rule);border-radius:8px;padding:10px 16px;display:flex;flex-direction:column;gap:2px}
+
+/* Stampa */
+.loading{min-height:70vh;justify-content:center;align-items:center;text-align:center}
+.printer{width:min(360px,100%);background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:20px;font-family:var(--mono);font-size:.9rem;text-align:left}
+.printer .head{text-align:center;text-transform:uppercase;letter-spacing:.12em;font-weight:600;font-size:.78rem;color:var(--muted);padding-bottom:10px;border-bottom:1px dashed var(--rule);margin-bottom:10px}
+.step{display:grid;grid-template-columns:20px 1fr;gap:8px;padding:5px 0;color:var(--muted);transition:color .3s}
+.step .ic{width:14px;height:14px;border-radius:50%;border:2px solid var(--rule);align-self:center;transition:all .3s}
+.step.run{color:var(--ink)}
+.step.run .ic{border-color:var(--ink);border-top-color:transparent;animation:spin .7s linear infinite}
+.step.done{color:var(--ink)}
+.step.done .ic{background:var(--ink);border-color:var(--ink)}
+.ring{position:relative;width:180px;height:180px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--rule);stroke-width:6}
+.ring .arc{fill:none;stroke:var(--ink);stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(255,255,255,.55))}
+.ring .check{position:absolute;inset:0;width:100%;height:100%;transform:none}
+.ring .check path{fill:none;stroke:var(--ink);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .45s ease-out forwards;filter:drop-shadow(0 0 6px rgba(255,255,255,.55))}
+.ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:2.2rem;color:var(--ink);font-variant-numeric:tabular-nums}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Risultato */
+.topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.back{background:transparent;border:1px solid var(--rule);color:var(--ink);border-radius:999px;padding:7px 14px;font-family:var(--body);font-weight:600;cursor:pointer}
+.back:hover{border-color:var(--accent);color:var(--accent)}
+.hero-num{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,10vw,4.2rem);line-height:1;letter-spacing:-.02em;text-align:center;word-spacing:.04em}
+.lead-explain{font-size:1.08rem;max-width:56ch;text-align:center;margin:10px auto 0}
+.lead-explain b{font-family:var(--mono);font-weight:600}
+.barwrap{position:relative}
+.bar{display:flex;height:58px;border-radius:6px;overflow:hidden}
+.seg{height:100%;border:0;padding:0;margin:0 -1px 0 0;cursor:pointer;transform-origin:left;animation:grow .7s ease both;transition:opacity .15s,filter .15s;min-width:0}
+.seg:last-child{margin-right:0}
+.bar.hovering .seg{opacity:.45}
+.bar.hovering .seg.on{opacity:1;filter:brightness(1.08)}
+.seg:focus-visible{outline:3px solid var(--ink);outline-offset:-3px}
+.tip{position:absolute;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--paper);border-radius:8px;padding:7px 11px;font-size:.86rem;width:max-content;max-width:min(300px,90vw);white-space:normal;text-align:center;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:2}
+.tip b{font-family:var(--mono);word-spacing:-.3em}
+.tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink)}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.9rem}
+.legend button{background:none;border:0;padding:2px 0;color:var(--ink);font:inherit;cursor:pointer}
+.legend button:hover{text-decoration:underline}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
+.legend .mono{word-spacing:-.3em}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;text-align:center}
+.summary div{display:flex;flex-direction:column;gap:2px}
+.summary b{font-family:var(--display);font-size:1.7rem;line-height:1.1;word-spacing:-.15em}
+.summary span{font-size:.86rem;color:var(--muted)}
+@media (max-width:560px){.summary{grid-template-columns:1fr}}
+
+/* Elenchi a fisarmonica, colonna unica come uno scontrino */
+.list{max-width:620px;margin:14px auto 0;width:100%}
+.voce{border-top:1px solid var(--rule)}
+.voce:first-child{border-top:0}
+.voce summary{list-style:none;display:grid;grid-template-columns:10px minmax(0,1fr) auto auto 18px;gap:12px;align-items:center;padding:16px 10px;cursor:pointer;border-radius:6px}
+.voce summary::-webkit-details-marker{display:none}
+.voce summary:hover{background:var(--bg)}
+.voce .stripe{width:10px;height:10px;border-radius:2px}
+.voce .ttl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;font-family:var(--display);font-weight:700;font-size:1.08rem}
+.mbar{display:inline-block;width:70px;height:6px;background:var(--field);border-radius:3px;overflow:hidden;flex:none}
+.mbar span{display:block;height:100%;border-radius:3px}
+.voce .pc{font-family:var(--mono);font-size:.74rem;color:var(--muted);white-space:nowrap;justify-self:end;font-variant-numeric:tabular-nums}
+.voce .amt{font-family:var(--mono);font-weight:600;font-size:1.1rem;justify-self:end;text-align:right;min-width:84px;font-variant-numeric:tabular-nums;word-spacing:-.3em}
+.voce .chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-3px,-3px);transition:transform .2s;justify-self:center}
+.voce[open] .chev{transform:rotate(-135deg) translate(-2px,-2px)}
+.voce .body{padding:0 10px 18px 32px;display:flex;flex-direction:column;gap:12px}
+.sdesc{color:var(--muted);font-size:.98rem;max-width:58ch}
+.items{background:var(--bg);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.items>span{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.it{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:baseline;font-size:.92rem}
+.it b{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;word-spacing:-.3em}
+.it small{font-family:var(--mono);color:var(--muted);font-size:.8rem;white-space:nowrap;min-width:52px;text-align:right;word-spacing:-.3em}
+.subtotal{display:grid;grid-template-columns:10px minmax(0,1fr) auto 18px;gap:12px;padding:10px;margin-top:2px;background:var(--bg);border-radius:6px;font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+.subtotal span:first-child{grid-column:2}
+.subtotal span:last-child{grid-column:3;justify-self:end;text-align:right;min-width:84px;word-spacing:-.3em}
+.subtotal.gap span:last-child{color:var(--o2)}
+@media (max-width:520px){
+  .voce summary{grid-template-columns:10px minmax(0,1fr) auto 18px}
+  .voce .pc{grid-column:2;grid-row:2;justify-self:start}
+  .voce .body{padding-left:10px}
+  .it{grid-template-columns:minmax(0,1fr) auto}
+  .it small{display:none}
+}
+.notes{font-size:.92rem;color:var(--muted);max-width:60ch;margin:0 auto;display:flex;flex-direction:column;gap:8px;text-align:center}
+.notes a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Scelta del Comune */
+.more{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.more .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ghost{font-family:var(--display);font-weight:700;font-size:1.05rem;background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:13px 22px;cursor:pointer}
+.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.modal{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.72);display:flex;align-items:flex-start;justify-content:center;
+  padding:max(24px, calc(env(safe-area-inset-top, 0px) + 16px)) max(16px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px))}
+.sheet{width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;gap:14px;background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:20px}
+.sheet .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sheet h2{text-align:left}
+.x{background:transparent;border:1px solid var(--rule);color:var(--ink);border-radius:999px;width:36px;height:36px;font-size:1.1rem;cursor:pointer;flex:none}
+.x:hover{border-color:var(--accent);color:var(--accent)}
+#q{width:100%;outline:none;-webkit-appearance:none;appearance:none;font-family:var(--mono);font-size:1.1rem;padding:12px 14px;border:2px solid var(--rule);border-radius:8px;background:var(--field);color:var(--ink)}
+#q:focus{border-color:var(--accent)}
+#q::placeholder{color:var(--muted);opacity:.7}
+.results{overflow-y:auto;display:flex;flex-direction:column;min-height:120px}
+.results button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:baseline;text-align:left;background:transparent;border:0;border-top:1px solid var(--rule);color:var(--ink);padding:12px 6px;cursor:pointer;font:inherit}
+.results button:first-child{border-top:0}
+.results button:hover,.results button:focus-visible{background:var(--bg)}
+.results b{font-family:var(--display);font-weight:700}
+.results span{color:var(--muted);font-size:.86rem}
+.results small{font-family:var(--mono);color:var(--muted);font-size:.8rem;white-space:nowrap}
+.results p{color:var(--muted);text-align:center;padding:18px 0}
+.cmp{font-family:var(--mono);font-size:.84rem;color:var(--muted);word-spacing:-.3em}
+.cmp b{color:var(--ink);font-weight:600}
+</style>
+<div class="wrap">
+
+  <section class="screen intro" id="s-intro">
+    <h1>Dove vanno i soldi pubblici?</h1>
+    <p class="lede">Tutta la spesa pubblica italiana di un anno, cioè Stato, Regioni, Comuni e INPS insieme, divisa per ogni persona che vive in Italia.</p>
+    <div class="stub"><span>ITALIA</span><span>anno 2024</span><span>58,9 milioni di residenti</span></div>
+    <button class="cta" id="go" type="button">Stampa lo scontrino</button>
+  </section>
+
+  <section class="screen loading" id="s-load" hidden aria-live="polite">
+    <h2>Sto facendo i conti</h2>
+    <div class="printer">
+      <div class="head">Scontrino in stampa</div>
+      <div id="steps"></div>
+    </div>
+    <div class="ring" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="44"/><circle class="arc" id="arc" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="276.46"/></svg>
+      <div class="pct" id="pct">0%</div>
+      <svg class="check" id="check" viewBox="0 0 100 100" hidden><path d="M31 52 L45 66 L71 38"/></svg>
+    </div>
+  </section>
+
+  <section class="screen" id="s-res" hidden>
+    <div class="topbar">
+      <span class="muted" id="r-where"></span>
+      <button class="back" id="again" type="button"></button>
+    </div>
+
+    <div class="panel screen" style="gap:16px">
+      <div>
+        <h2 id="r-title"></h2>
+        <p class="hero-num mono" id="r-hero"></p>
+        <p class="lead-explain" id="r-explain"></p>
+        <p class="hint" id="r-why"></p>
+      </div>
+      <h3 style="margin-top:6px">Ogni euro, in una barra</h3>
+      <div class="barwrap"><div class="tip" id="tip" hidden></div><div class="bar" id="bar" role="group" aria-label="Spesa per residente divisa per voce"></div></div>
+      <div class="legend" id="legend"></div>
+      <div class="summary">
+        <div><b class="mono" id="s-1"></b><span id="s-1l"></span></div>
+        <div><b class="mono" id="s-2"></b><span>al mese per residente</span></div>
+        <div><b class="mono" id="s-3"></b><span id="s-3l"></span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Dove vanno i <span class="mono" id="t-out"></span></h2>
+      <p class="hint" id="h-out"></p>
+      <div class="list" id="out"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Da dove arrivano</h2>
+      <p class="hint" id="h-in"></p>
+      <div class="list" id="in"></div>
+    </div>
+
+    <div class="notes" id="notes"></div>
+
+    <div class="panel more">
+      <h2 id="m-title">E il tuo Comune?</h2>
+      <p class="hint" id="m-hint">Scegli un Comune e vedi quanto ha speso per ogni residente negli ultimi 12 mesi, e da dove sono arrivati i soldi.</p>
+      <div class="row">
+        <button class="cta" id="pick" type="button">Scegli un Comune</button>
+        <button class="ghost" id="toItaly" type="button" hidden>Torna all'Italia</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="sheet">
+    <div class="top"><h2 id="mt">Scegli un Comune</h2><button class="x" id="close" type="button" aria-label="Chiudi">✕</button></div>
+    <input id="q" type="text" placeholder="Scrivi il nome, es. Firenze" autocomplete="off" spellcheck="false">
+    <div class="results" id="results"><p>Carico i comuni…</p></div>
+  </div>
+</div>
+
+<script>
+const M = 1e6;
+const PAL = ["--b1","--o1","--b2","--o2","--b3","--o3"];
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString("it-IT") + " €";
+const big = n => n >= 1e9
+  ? (n/1e9).toLocaleString("it-IT",{maximumFractionDigits:n>=1e11?0:1}) + " mld"
+  : (n/1e6).toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1}) + " mln";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Italia: spesa per funzione 2024 (Eurostat COFOG) ed entrate 2024 (Eurostat), in euro */
+const ITALIA = {
+  name:"Italia", where:"Italia · anno 2024", pop:58934177,
+  title:"Quanto ha speso il settore pubblico per ogni residente",
+  explain:t=>`Nel 2024 Stato, Regioni, Comuni e INPS hanno speso <b>${fmt(t)}</b> per ogni persona che vive in Italia. Non è quanto paghi tu: è la spesa pubblica totale divisa per i residenti.`,
+  s1l:"spesi in tutto", s3k:"Pensioni", s3l:"vanno alle pensioni",
+  hOut:"Tocca una voce per vedere da cosa è fatta.",
+  hIn:"Le entrate pubbliche dello stesso anno, divise per residente.",
+  gap:"Differenza, coperta con nuovo debito",
+  surplus:"Avanzo",
+  steps:["Leggo i conti pubblici Eurostat 2024","Sommo Stato, Regioni, Comuni e INPS","Divido la spesa per funzione","Divido per 58,9 milioni di residenti"],
+  why:"Perché il 2024 e non il 2025? È l'ultimo anno con la spesa divisa per voce. Eurostat deve raccogliere e controllare i conti di migliaia di enti pubblici, e li pubblica più di un anno dopo: il 2025 uscirà a inizio 2027.",
+  notes:`<p>Fonte: Eurostat, spesa delle amministrazioni pubbliche per funzione (COFOG) e conti delle entrate, anno 2024, l'ultimo con il dettaglio per voce. Residenti: ISTAT al 1° gennaio 2025.</p>`,
+  out:[
+    {k:"Pensioni", d:"Le pensioni di vecchiaia e quelle ai superstiti, cioè la reversibilità a vedove, vedovi e orfani.", t:359572*M, i:[["Vecchiaia",306359*M],["Superstiti",53213*M]]},
+    {k:"Sanità", d:"Ospedali, medici di base, visite specialistiche, farmaci e prevenzione.", t:146075*M, i:[["Ospedali",60251*M],["Medici di base e visite",53805*M],["Farmaci e apparecchi",20337*M],["Prevenzione",6748*M],["Ricerca e altro",4934*M]]},
+    {k:"Altra protezione sociale", d:"Aiuti a chi è malato o invalido, alle famiglie con figli, a chi perde il lavoro e a chi è in povertà.", t:108563*M, i:[["Invalidità e malattia",37782*M],["Famiglie e figli",32266*M],["Disoccupazione",20257*M],["Povertà",14982*M],["Casa e altro",3276*M]]},
+    {k:"Istruzione", d:"Scuole dall'infanzia alle superiori, università e servizi come mense e trasporti scolastici.", t:89180*M, i:[["Scuola secondaria",39545*M],["Infanzia e primaria",30977*M],["Università",9144*M],["Mense e servizi",4869*M],["Altro",4645*M]]},
+    {k:"Interessi sul debito", d:"Quello che si paga ogni anno a chi ha prestato soldi allo Stato comprando titoli come BTP e BOT.", t:87789*M, i:[["Interessi sul debito pubblico",87789*M]]},
+    {k:"Funzionamento dello Stato", d:"Parlamento, governo, ministeri, riscossione delle tasse, rapporti con l'estero e ricerca di base.", t:82625*M, i:[["Governo, fisco ed esteri",43344*M],["Servizi generali",20816*M],["Ricerca di base",12757*M],["Aiuti ad altri Paesi",1488*M],["Altro",4220*M]]},
+    {k:"Aiuti all'economia", d:"Incentivi alle imprese, politiche del lavoro, energia, industria e agricoltura.", t:60557*M, i:[["Lavoro e commercio",18047*M],["Energia",13272*M],["Industria e costruzioni",11750*M],["Ricerca",6137*M],["Agricoltura",5600*M],["Altro",5751*M]]},
+    {k:"Trasporti", d:"Strade, autostrade, ferrovie, trasporto pubblico locale, porti e aeroporti.", t:51824*M, i:[["Trasporti",51824*M]]},
+    {k:"Sicurezza e giustizia", d:"Polizia, vigili del fuoco, tribunali e carceri.", t:39094*M, i:[["Polizia",22493*M],["Tribunali",7762*M],["Vigili del fuoco",4658*M],["Carceri",3960*M],["Altro",221*M]]},
+    {k:"Difesa", d:"Forze armate e missioni militari.", t:28301*M, i:[["Forze armate",25940*M],["Aiuti militari all'estero",1572*M],["Altro",789*M]]},
+    {k:"Ambiente", d:"Rifiuti, depurazione delle acque, inquinamento e tutela del paesaggio.", t:19828*M, i:[["Rifiuti",11632*M],["Natura e paesaggio",3060*M],["Inquinamento",1843*M],["Ricerca",1811*M],["Acque reflue",1053*M],["Altro",429*M]]},
+    {k:"Cultura e sport", d:"Musei, biblioteche, impianti sportivi, televisione pubblica ed editoria.", t:18774*M, i:[["Cultura",7612*M],["Sport e tempo libero",6689*M],["Radio, TV ed editoria",3234*M],["Culto",1051*M],["Altro",188*M]]},
+    {k:"Casa e territorio", d:"Case popolari, sviluppo urbano, illuminazione delle strade e acquedotti.", t:16973*M, i:[["Edilizia pubblica",8334*M],["Sviluppo urbano",4444*M],["Illuminazione pubblica",2359*M],["Acqua",1713*M],["Altro",122*M]]}
+  ],
+  inn:[
+    {k:"Contributi sociali", d:"I contributi per pensioni e indennità, versati all'INPS da aziende e lavoratori.", t:278140*M, i:[["Pagati dalle aziende",189097*M],["Pagati dai lavoratori",84744*M],["Altri",4299*M]]},
+    {k:"IRPEF", d:"Le imposte sul reddito delle persone: dipendenti, pensionati, autonomi.", t:273638*M, i:[["Imposte sui redditi delle persone",273638*M]]},
+    {k:"IVA", d:"L'imposta inclusa nel prezzo di quasi tutto quello che compri.", t:145187*M, i:[["IVA",145187*M]]},
+    {k:"Accise e altre imposte sui consumi", d:"Accise su carburanti, energia, tabacchi e alcol, imposta di bollo e altre imposte sui prodotti.", t:99042*M, i:[["Imposte sui prodotti, IVA esclusa",99042*M]]},
+    {k:"IRAP, IMU e simili", d:"Imposte legate alla produzione e agli immobili, come IRAP e IMU.", t:65371*M, i:[["Altre imposte sulla produzione",65371*M]]},
+    {k:"IRES", d:"L'imposta sugli utili delle società.", t:58665*M, i:[["Imposte sugli utili delle imprese",58665*M]]},
+    {k:"Servizi pagati dai cittadini", d:"Ticket sanitari, rette, tariffe e altri servizi che le amministrazioni vendono.", t:51753*M, i:[["Vendita di servizi",51753*M]]},
+    {k:"Trasferimenti e fondi UE", d:"Soldi in arrivo da altri soggetti, compresi i fondi dell'Unione europea.", t:34434*M, i:[["Dall'Unione europea",9451*M],["Altri trasferimenti",24983*M]]},
+    {k:"Rendite e interessi", d:"Interessi incassati, affitti di beni pubblici e dividendi delle società partecipate.", t:16729*M, i:[["Interessi",5944*M],["Affitti",5117*M],["Dividendi",4315*M],["Altro",1353*M]]},
+    {k:"Altre imposte", d:"Imposte sul patrimonio, successioni e donazioni, altre imposte sul reddito.", t:13066*M, i:[["Altre imposte",13066*M]]}
+  ]
+};
+
+/* Comuni: SIOPE, ultimi 12 mesi chiusi (ottobre 2025 – settembre 2026). Ordine delle voci uguale al file comuni-12mesi.json */
+const C_OUT = [
+  ["Personale","Gli stipendi dei dipendenti del Comune, con i contributi che il Comune versa all'INPS sopra lo stipendio."],
+  ["Rifiuti","Raccolta, pulizia delle strade e smaltimento dei rifiuti."],
+  ["Strade","Lavori su strade, piazze e infrastrutture."],
+  ["Trasporti","Trasporto pubblico, scolastico e per disabili, acquisto di mezzi."],
+  ["Spese non specificate","Pagamenti registrati come \u201caltri servizi diversi\u201d o \u201caltre spese\u201d senza dettaglio. Da questi dati non si vede cosa contengono: il dettaglio è solo negli atti del Comune."],
+  ["Sociale e nidi","Assistenza ad anziani, disabili e persone in difficoltà, sussidi alle famiglie, asili nido."],
+  ["Sport e cultura","Impianti sportivi, musei, teatri, biblioteche ed edifici storici."],
+  ["Case ed edifici","Case popolari, edifici comunali e cimiteri."],
+  ["Luce e utenze","Illuminazione delle strade e bollette degli edifici comunali."],
+  ["Scuole e mense","Edifici scolastici, mense e servizi per le scuole."],
+  ["Debito","Rate dei mutui presi negli anni passati, con gli interessi."],
+  ["Contributi ad altri enti","Soldi dati a imprese, associazioni, Regione e altri enti."],
+  ["Manutenzioni","Riparazioni ordinarie di edifici, impianti e mezzi."],
+  ["Informatica","Software, sistemi, licenze e computer degli uffici."],
+  ["Tasse pagate dal Comune","Anche il Comune paga imposte: soprattutto l'IRAP sugli stipendi e l'IVA."],
+  ["Politica","Indennità di sindaco e assessori, gettoni dei consiglieri, revisori dei conti."],
+  ["Altri servizi in appalto","Servizi pubblici affidati a ditte esterne e non elencati nelle altre voci, come parcheggi a pagamento, servizio idrico e canili."],
+  ["Consulenze e professionisti","Architetti, ingegneri, consulenti e altri professionisti esterni, compresi i progetti delle opere pubbliche e il personale interinale."],
+  ["Cause e risarcimenti","Avvocati, spese legali, cause perse e risarcimenti dei danni."],
+  ["Pulizie e vigilanza","Pulizia degli uffici, sorveglianza, custodia e altri servizi ausiliari."],
+  ["Verde e terreni","Cura del verde pubblico e acquisto di terreni."],
+  ["Riscossione delle tasse","Il compenso alle società che riscuotono tasse e multe per il Comune."],
+  ["Materiali e attrezzature","Cancelleria, vestiario, carburante, alimenti, mobili, macchinari e attrezzature."],
+  ["Eventi e comunicazione","Manifestazioni, convegni, mostre e pubblicità."],
+  ["Assicurazioni","Le polizze su edifici, mezzi e responsabilità civile."],
+  ["Rimborsi restituiti","Tasse e somme incassate per errore o in eccesso, restituite a cittadini, imprese ed enti."],
+  ["Posta, banca e amministrazione","Spese postali, servizio di tesoreria della banca, quote associative, spese per le elezioni."],
+  ["Altre spese varie","Voci piccole che non rientrano altrove: ristorazione, servizi sanitari, formazione del personale, trasferimenti interni."],
+  ["Affitti e noleggi","Affitti di locali, noleggi di macchinari e canoni per opere in partenariato con privati."]
+];
+const C_IN = [
+  ["Stato","Contributi e trasferimenti dai ministeri e dai fondi nazionali, cioè dalle tasse di tutti gli italiani."],
+  ["Servizi e beni del Comune","Suolo pubblico, affitti di immobili comunali, permessi di costruire, musei, mense, nidi."],
+  ["IMU","L'imposta sugli immobili. Non si paga sulla prima casa."],
+  ["Regione e altri enti locali","Contributi della Regione, della Provincia, di altri Comuni e consorzi per opere e servizi."],
+  ["TARI","La tassa sui rifiuti, pagata da famiglie e attività."],
+  ["Imposta di soggiorno","La pagano i turisti per ogni notte passata in città."],
+  ["Multe","Soprattutto multe per le infrazioni stradali."],
+  ["Addizionale IRPEF","La parte di IRPEF che va al Comune, trattenuta in busta paga ai residenti."],
+  ["Altre entrate varie","Voci piccole: condoni edilizi, indennizzi delle assicurazioni, trasferimenti da INPS e famiglie."],
+  ["Nuovi prestiti","Mutui presi in banca o dalla Cassa Depositi e Prestiti, di solito per pagare opere pubbliche. Andranno restituiti negli anni."],
+  ["Vendita di beni","Case, terreni e altri beni del Comune venduti."],
+  ["Interessi e dividendi","Utili delle società partecipate dal Comune e interessi sui conti."],
+  ["Rimborsi ricevuti","Soldi restituiti al Comune, per esempio per personale prestato ad altri enti o IVA a credito."],
+  ["Fondi europei","Contributi dell'Unione europea per progetti e opere."],
+  ["Altre imposte","Imposte minori o arretrate, come la vecchia ICI recuperata con i controlli e i proventi dei casinò."],
+  ["Contributi di imprese e privati","Soldi dati al Comune da aziende, fondazioni e associazioni per opere o servizi."],
+  ["Entrate non specificate","Incassi registrati come \u201caltre entrate\u201d senza dettaglio."]
+];
+let COMUNI = null, AVG = null;
+
+function comuneData(r){
+  const [n,p,reg,pop,o,i,go,gi,fo,fi] = r;
+  const nice = n.toLowerCase().replace(/(^|[\s'\-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
+  return {
+    name:nice, where:`Comune di ${nice} · ${p} · ottobre 2025 – settembre 2026`, pop, comune:true,
+    title:"Quanto ha speso il Comune per ogni residente",
+    why:"Perché questi mesi? Sono gli ultimi 12 mesi chiusi. SIOPE pubblica i pagamenti dei Comuni ogni mese, e ottobre 2026 non è ancora finito.",
+    explain:t=>`Negli ultimi 12 mesi il Comune di ${nice} ha speso <b>${fmt(t)}</b> per ogni persona che ci vive. Non è quanto paghi tu: è la spesa del Comune divisa per i residenti.`,
+    s1l:"spesi in tutto", s3k:"Personale", s3l:"vanno agli stipendi del personale",
+    hOut:"Tocca una voce per vedere il totale e la media dei Comuni italiani.",
+    hIn:"Le entrate del Comune nello stesso anno, divise per residente.",
+    gap:"Differenza, coperta con la cassa degli anni passati",
+    surplus:"Avanzo, rimasto in cassa",
+    steps:["Leggo gli ultimi 12 mesi di pagamenti SIOPE",`Filtro il Comune di ${nice}`,"Tolgo soldi di passaggio e movimenti finanziari",`Divido per ${pop.toLocaleString("it-IT")} residenti`],
+    notes:`<p>Dallo scontrino sono esclusi <b class="mono">${fmt(go/pop)}</b> per residente di soldi di passaggio: ritenute e IVA che il Comune incassa e gira subito allo Stato.</p>
+      <p>Sono esclusi anche <b class="mono">${fmt(fo/pop)}</b> di movimenti finanziari: anticipi di cassa restituiti alla banca, soldi spostati su conti deposito o in titoli. Non sono spesa: è come spostare soldi dal conto corrente al libretto di risparmio.</p>
+      <p>Fonte: pagamenti e incassi di cassa <a href="https://www.siope.it" target="_blank" rel="noopener">SIOPE</a> (Ragioneria Generale dello Stato e Banca d'Italia), da ottobre 2025 a settembre 2026. Raggruppamento delle voci a cura di questo scontrino. Residenti secondo l'anagrafica SIOPE.</p>`,
+    out:C_OUT.map(([k,d],j)=>({k,d,t:o[j],avg:AVG.o[j]})).filter(x=>x.t>0),
+    inn:C_IN.map(([k,d],j)=>({k,d,t:i[j],avg:AVG.i[j]})).filter(x=>x.t>0)
+  };
+}
+
+function roundTo(list,pop){
+  const raw = list.map(x=>x.t/pop), flo = raw.map(Math.floor);
+  let left = Math.round(raw.reduce((a,b)=>a+b,0)) - flo.reduce((a,b)=>a+b,0);
+  raw.map((v,i)=>[v-flo[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{ if(left>0){flo[i]++;left--;} });
+  return flo;
+}
+function show(id){ ["s-intro","s-load","s-res"].forEach(s=>$(s).hidden = s!==id); window.scrollTo({top:0}); }
+
+let timer = null;
+function printAndShow(D){
+  show("s-load");
+  $("steps").innerHTML = D.steps.map(s=>`<div class="step"><span class="ic"></span><span>${s}</span></div>`).join("");
+  const els = [...document.querySelectorAll(".step")];
+  const DUR = reduce ? 400 : 3200;
+  $("arc").setAttribute("stroke-dashoffset","276.46"); $("check").setAttribute("hidden",""); $("pct").hidden=false; $("pct").textContent="0%";
+  cancelAnimationFrame(timer);
+  const t0 = performance.now();
+  const frame = now => {
+    const k = Math.min(1,(now-t0)/DUR), e = k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;
+    $("pct").textContent = Math.round(e*100)+"%";
+    $("arc").setAttribute("stroke-dashoffset",(276.46*(1-e)).toFixed(2));
+    const idx = Math.min(els.length-1, Math.floor(e*els.length));
+    els.forEach((el,j)=>{ el.classList.toggle("done", j<idx || k===1); el.classList.toggle("run", j===idx && k<1); });
+    if (k<1) timer = requestAnimationFrame(frame);
+    else { $("pct").hidden=true; $("check").removeAttribute("hidden"); setTimeout(()=>{ render(D); show("s-res"); }, reduce?150:800); }
+  };
+  timer = requestAnimationFrame(frame);
+}
+
+function list(el, data, per, totPer, colorOf, pop){
+  const max = Math.max(...per, 1);
+  el.innerHTML = data.map((x,i)=>{
+    const pc = (per[i]/(totPer||1)*100).toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1});
+    const col = colorOf(x,i);
+    let body = `<p class="sdesc">${x.d}</p>`;
+    if (x.i) body += `<div class="items"><span>In tutto ${big(x.t)} · da cosa è fatta</span>${x.i.map(([n,v])=>`<div class="it"><span>${n}</span><b>${big(v)}</b><small>${fmt(v/pop)}</small></div>`).join("")}</div>`;
+    else body += `<p class="cmp">In tutto <b>${big(x.t)}</b> · media dei Comuni italiani <b>${fmt(x.avg)}</b> per residente</p>`;
+    return `<details class="voce"><summary><span class="stripe" style="background:var(${col})"></span>
+      <span class="ttl"><span>${x.k}</span><span class="mbar"><span style="width:${per[i]/max*100}%;background:var(${col})"></span></span></span>
+      <span class="pc">${pc}%</span><span class="amt">${fmt(per[i])}</span><span class="chev" aria-hidden="true"></span></summary>
+      <div class="body">${body}</div></details>`;
+  }).join("");
+}
+
+let current = ITALIA;
+function render(D){
+  current = D;
+  const out = [...D.out].sort((a,b)=>b.t-a.t), inn = [...D.inn].sort((a,b)=>b.t-a.t);
+  const perOut = roundTo(out,D.pop), totOut = perOut.reduce((a,b)=>a+b,0);
+  const perIn = roundTo(inn,D.pop), totIn = perIn.reduce((a,b)=>a+b,0);
+  const totEur = out.reduce((a,x)=>a+x.t,0);
+  const colorOf = (x,i) => i<6 ? PAL[i] : "--rest";
+  const rank = new Map(out.map((x,i)=>[x.k,i]));
+
+  $("r-where").textContent = D.where;
+  $("again").textContent = D.comune ? "Cambia Comune" : "Ricomincia";
+  $("toItaly").hidden = !D.comune;
+  $("m-title").textContent = D.comune ? "Un altro Comune?" : "E il tuo Comune?";
+  $("r-title").textContent = D.title;
+  $("r-hero").textContent = fmt(totOut);
+  $("r-explain").innerHTML = D.explain(totOut);
+  $("r-why").textContent = D.why;
+  $("s-1").textContent = big(totEur); $("s-1l").textContent = D.s1l;
+  $("s-2").textContent = "≈ " + fmt(Math.round(totOut/12/10)*10);
+  const s3 = out.findIndex(x=>x.k===D.s3k);
+  $("s-3").textContent = fmt(s3>=0 ? perOut[s3] : 0); $("s-3l").textContent = D.s3l;
+  $("t-out").textContent = fmt(totOut);
+  $("h-out").textContent = D.hOut; $("h-in").textContent = D.hIn;
+  $("notes").innerHTML = D.notes;
+
+  const top = out.slice(0,6).map((x,i)=>[x.k, perOut[i], PAL[i]]);
+  const rest = totOut - top.reduce((a,s)=>a+s[1],0);
+  if (rest > 0) top.push([`Tutto il resto (${out.slice(6).map(x=>x.k).join(", ")})`, rest, "--rest"]);
+  const pct = v => Math.round(v/(totOut||1)*100);
+  const bar = $("bar"), tip = $("tip");
+  bar.innerHTML = top.map((s,i)=>`<button type="button" class="seg" data-i="${i}" aria-label="${s[0]}: ${fmt(s[1])}, ${pct(s[1])}%" style="width:${s[1]/(totOut||1)*100}%;background:var(${s[2]});animation-delay:${i*90}ms"></button>`).join("");
+  $("legend").innerHTML = top.map((s,i)=>`<button type="button" data-i="${i}"><i style="background:var(${s[2]})"></i>${s[0]} <span class="mono">${fmt(s[1])}</span></button>`).join("");
+  const showSeg = i => {
+    const el = bar.querySelector(`.seg[data-i="${i}"]`); if (!el) return;
+    bar.querySelectorAll(".seg").forEach(x=>x.classList.toggle("on", x===el)); bar.classList.add("hovering");
+    tip.innerHTML = `${top[i][0]}: <b>${fmt(top[i][1])}</b> · <b>${pct(top[i][1])}%</b>`; tip.hidden = false;
+    const w = bar.parentElement.getBoundingClientRect(), r = el.getBoundingClientRect(), tw = tip.offsetWidth;
+    tip.style.left = Math.min(Math.max(r.left-w.left+r.width/2, tw/2), w.width-tw/2) + "px";
+  };
+  const hideSeg = () => { bar.classList.remove("hovering"); bar.querySelectorAll(".seg").forEach(x=>x.classList.remove("on")); tip.hidden = true; };
+  bar.querySelectorAll(".seg").forEach(el=>{ const i=+el.dataset.i; ["mouseenter","focus","click"].forEach(ev=>el.addEventListener(ev,()=>showSeg(i))); });
+  bar.onmouseleave = hideSeg;
+  bar.onfocusout = e=>{ if(!bar.contains(e.relatedTarget)) hideSeg(); };
+  $("legend").querySelectorAll("button").forEach(b=>{ b.addEventListener("mouseenter",()=>showSeg(+b.dataset.i)); b.addEventListener("mouseleave",hideSeg); b.addEventListener("click",()=>showSeg(+b.dataset.i)); });
+
+  list($("out"), out, perOut, totOut, colorOf, D.pop);
+  $("out").insertAdjacentHTML("beforeend", `<div class="subtotal"><span>Totale speso per residente</span><span>${fmt(totOut)}</span></div>`);
+  list($("in"), inn, perIn, totIn, () => "--in", D.pop);
+  const diff = totOut - totIn;
+  $("in").insertAdjacentHTML("beforeend",
+    `<div class="subtotal"><span>Totale incassato per residente</span><span>${fmt(totIn)}</span></div>` +
+    (diff !== 0 ? `<div class="subtotal gap"><span>${diff>0 ? D.gap : D.surplus}</span><span>${fmt(Math.abs(diff))}</span></div>` : ""));
+}
+
+/* Scelta del Comune */
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+let INDEX = [];
+async function loadComuni(){
+  if (COMUNI) return;
+  const res = await fetch("comuni-12mesi.json");
+  if (!res.ok) throw new Error("load");
+  COMUNI = await res.json();
+  const so = new Array(C_OUT.length).fill(0), si = new Array(C_IN.length).fill(0); let pop = 0;
+  for (const r of COMUNI){ pop += r[3]; r[4].forEach((v,j)=>so[j]+=v); r[5].forEach((v,j)=>si[j]+=v); }
+  AVG = {o:so.map(v=>v/pop), i:si.map(v=>v/pop)};
+  INDEX = COMUNI.map((r,k)=>[norm(r[0]),k]);
+}
+function search(){
+  const q = norm($("q").value), box = $("results");
+  if (!COMUNI) return;
+  let hits;
+  if (!q) hits = [...INDEX].sort((a,b)=>COMUNI[b[1]][3]-COMUNI[a[1]][3]).slice(0,20);
+  else {
+    const starts = INDEX.filter(([n])=>n.startsWith(q)), inside = INDEX.filter(([n])=>!n.startsWith(q) && n.includes(q));
+    hits = [...starts.sort((a,b)=>COMUNI[b[1]][3]-COMUNI[a[1]][3]), ...inside].slice(0,60);
+  }
+  if (!hits.length){ box.innerHTML = `<p>Nessun Comune trovato con questo nome.</p>`; return; }
+  box.innerHTML = (!q ? `<p style="padding:4px 0 10px;text-align:left">I più popolosi. Scrivi per cercare tra ${COMUNI.length.toLocaleString("it-IT")} Comuni.</p>` : "") +
+    hits.map(([,k])=>{ const r = COMUNI[k]; const nice = r[0].toLowerCase().replace(/(^|[\s'\-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
+      return `<button type="button" data-k="${k}"><div><b>${nice}</b> <span>${r[1]}</span></div><small>${r[3].toLocaleString("it-IT")} ab.</small></button>`; }).join("");
+  box.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ closeModal(); printAndShow(comuneData(COMUNI[+b.dataset.k])); }));
+}
+let lastFocus = null;
+async function openModal(){
+  lastFocus = document.activeElement;
+  $("modal").hidden = false; $("q").value = ""; $("q").focus();
+  try { await loadComuni(); search(); }
+  catch(e){ $("results").innerHTML = `<p>Non riesco a caricare l'elenco dei Comuni. Ricarica la pagina e riprova.</p>`; }
+}
+function closeModal(){ $("modal").hidden = true; if (lastFocus) lastFocus.focus(); }
+$("q").addEventListener("input", search);
+$("q").addEventListener("keydown", e=>{ if (e.key==="Enter"){ const b = $("results").querySelector("button"); if (b) b.click(); } });
+$("close").addEventListener("click", closeModal);
+$("modal").addEventListener("click", e=>{ if (e.target === $("modal")) closeModal(); });
+document.addEventListener("keydown", e=>{ if (e.key==="Escape" && !$("modal").hidden) closeModal(); });
+
+$("go").addEventListener("click", ()=>printAndShow(ITALIA));
+$("pick").addEventListener("click", openModal);
+$("again").addEventListener("click", ()=> current.comune ? openModal() : show("s-intro"));
+$("toItaly").addEventListener("click", ()=>{ render(ITALIA); window.scrollTo({top:0}); });
+
+</script>
