@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="it">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Scontrino pubblico</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +18,8 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+/* Senza questa regola display:flex di .screen e .modal batte l'attributo hidden e tutto resta visibile */
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:32px 56px}
 .wrap{max-width:820px;margin:0 auto}
