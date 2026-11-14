@@ -12,7 +12,7 @@ Pensata per ragazzi delle medie e superiori: una schermata, un'idea.
 - Navigazione: tocco a destra = avanti, tocco nel 30% sinistro = indietro, frecce da tastiera. Le barre in alto si generano da sole contando le slide.
 - Numeri animati: `<span data-n="16.72" data-d="2">`, dove `data-n` è il valore e `data-d` i decimali.
 - Barre di confronto: `<div class="cmp">` con righe `<div><span>Nome</span><em>valore</em><i><b style="--w:PERCENTUALE%"></b></i></div>`. `--w` è relativo alla barra più lunga della stessa slide.
-- Monetine e scontrino finale sono generati in JS dall'array `V` (emoji, nome semplice, spesa in milioni di €, colore).
+- Monetine e scontrino finale sono generati in JS dall'array `V` (emoji, nome della voce, spesa in milioni di €, colore). I nomi sono gli stessi del Wrapped dello stipendio.
 
 ## Dati (non inventare numeri)
 Stessi dati di `scontrino-pubblico/index.html` (oggetto `ITALIA`):
@@ -30,6 +30,8 @@ Come nel Wrapped dello stipendio: ogni parola tecnica si scrive `<u data-w="chia
 L'ultima slide ha un link al Wrapped dello stipendio ("E tu quanto ci metti?"), che a sua volta finisce con un link a questo.
 
 ## Regole di testo
+- Si dà sempre del tu, con rispetto: anche quando si sceglie un lavoro di esempio, chi legge è "tu" ("il tuo netto", "paghi").
+- Diretto, senza addolcire: "Pensioni" e "anziani", non "nonni"; "Sussidi e assistenza", non "aiuti a chi ha bisogno". I nomi delle 13 voci sono gli stessi del Wrapped dello Stato.
 - Linguaggio per un ragazzo di 12-14 anni: frasi brevi, niente sigle senza spiegazione.
 - Solo informazioni utili a capire come vengono usati i soldi, niente curiosità fini a sé stesse.
 - Tono neutro: fatti e confronti, nessun giudizio politico.

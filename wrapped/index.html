@@ -104,13 +104,13 @@ u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offs
   <section class="slide b">
     <h2>In un anno fanno</h2>
     <div class="big" style="font-size:clamp(64px,21vw,104px)"><span data-n="18820">0</span><small> €</small></div>
-    <p>Circa 1.570 € al mese a testa. Più della metà (55%) va a pensioni, sanità e aiuti: soldi che servono quando una persona non può lavorare perché è anziana, malata o ha perso il lavoro.</p>
+    <p>Circa 1.570 € al mese a testa. Più della metà (55%) va a pensioni, sanità e sussidi: soldi che servono quando una persona non può lavorare perché è anziana, malata o ha perso il lavoro.</p>
   </section>
 
   <section class="slide o">
     <span class="chip">Al primo posto</span>
-    <span class="sticker">👵</span>
-    <h2>I nonni in pensione</h2>
+    <span class="sticker">🧓</span>
+    <h2>Le pensioni</h2>
     <div class="big"><span data-n="16.72" data-d="2">0</span><small> €</small></div>
     <p>al giorno, per ognuno di noi. Quasi 1 euro su 3 va alle pensioni.</p>
   </section>
@@ -126,7 +126,7 @@ u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offs
   <section class="slide l">
     <span class="chip">Al secondo posto</span>
     <span class="sticker">🏥</span>
-    <h2>Ospedali e medici</h2>
+    <h2>La sanità</h2>
     <div class="big"><span data-n="6.79" data-d="2">0</span><small> €</small></div>
     <p>al giorno. Pronto soccorso, medico di base, farmaci, vaccini.</p>
   </section>
@@ -140,7 +140,7 @@ u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offs
 
   <section class="slide b">
     <span class="sticker">🤝</span>
-    <h2>Aiuti a chi ha bisogno: a chi vanno</h2>
+    <h2>Sussidi e assistenza: a chi vanno</h2>
     <div class="cmp"><div><span>Invalidità e malattia</span><em>1,76 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Famiglie con figli</span><em>1,50 €</em><i><b style="--w:85.2%"></b></i></div><div><span>Chi perde il lavoro</span><em>0,94 €</em><i><b style="--w:53.4%"></b></i></div><div><span>Chi è in povertà</span><em>0,70 €</em><i><b style="--w:39.8%"></b></i></div></div>
     <p class="note">Euro al giorno, a testa. L'<u data-w="assegno">assegno unico</u> per i figli e la <u data-w="naspi">NASpI</u> per chi perde il lavoro sono qui.</p>
   </section>
@@ -155,7 +155,7 @@ u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offs
   <section class="slide p">
     <span class="chip">Plot twist</span>
     <span class="sticker">💳</span>
-    <h2>Interessi su vecchi prestiti</h2>
+    <h2>Interessi sul debito</h2>
     <div class="big"><span data-n="4.08" data-d="2">0</span><small> €</small></div>
     <p>al giorno, quasi quanto la scuola. Negli anni lo Stato si è fatto prestare soldi: è il <u data-w="debito">debito pubblico</u>. Questi sono solo gli <u data-w="interessi">interessi</u>: come quando un amico ti presta 10 € e tu gliene ridai 11.</p>
   </section>
@@ -226,19 +226,19 @@ u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offs
 {
 const POP = 58934177, M = 1e6;
 const V = [
-  ["👵","Nonni in pensione",359572,"#ff7a1a"],
-  ["🏥","Ospedali e medici",146075,"#ff5c9a"],
-  ["🤝","Aiuti a chi ha bisogno",108563,"#4361ff"],
+  ["🧓","Pensioni",359572,"#ff7a1a"],
+  ["🏥","Sanità",146075,"#ff5c9a"],
+  ["🤝","Sussidi e assistenza",108563,"#4361ff"],
   ["🎒","Scuola",89180,"#b9a3ff"],
-  ["💳","Interessi sui prestiti",87789,"#111111"],
-  ["🏛️","Far funzionare lo Stato",82625,"#2ec4b6"],
-  ["🏭","Aiuti alle aziende",60557,"#c9c2b0"],
-  ["🚆","Strade, treni e bus",51824,"#c9c2b0"],
-  ["🚓","Polizia e tribunali",39094,"#c9c2b0"],
+  ["💳","Interessi sul debito",87789,"#111111"],
+  ["🏛️","Funzionamento dello Stato",82625,"#2ec4b6"],
+  ["🏭","Aiuti alle imprese",60557,"#c9c2b0"],
+  ["🚆","Trasporti",51824,"#c9c2b0"],
+  ["🚓","Sicurezza e giustizia",39094,"#c9c2b0"],
   ["🪖","Difesa",28301,"#c9c2b0"],
-  ["♻️","Rifiuti e ambiente",19828,"#c9c2b0"],
-  ["⚽","Musei e sport",18774,"#c9c2b0"],
-  ["💡","Case popolari e lampioni",16973,"#c9c2b0"]
+  ["♻️","Ambiente",19828,"#c9c2b0"],
+  ["⚽","Cultura e sport",18774,"#c9c2b0"],
+  ["💡","Casa e territorio",16973,"#c9c2b0"]
 ];
 const day = t => t*M/POP/365;
 const eur = (n,d=2) => n.toLocaleString("it-IT",{useGrouping:"always",minimumFractionDigits:d,maximumFractionDigits:d});
@@ -257,7 +257,7 @@ document.getElementById("leg").innerHTML = groups.map((g,i)=>`<span style="--c:$
    Arrotondando ogni riga al centesimo la somma non torna col totale (51,58 invece di 51,56).
    Sistemo i centesimi in più o in meno sulle righe dove la correzione resta più vicina al valore vero
    (sempre meno di 1 centesimo), lasciando stare le voci che compaiono anche nelle storie. */
-const NELLE_STORIE = new Set(["Nonni in pensione","Ospedali e medici","Scuola","Interessi sui prestiti","Difesa","Rifiuti e ambiente"]);
+const NELLE_STORIE = new Set(["Pensioni","Sanità","Scuola","Interessi sul debito","Difesa","Ambiente"]);
 const exact = V.map(v=>day(v[2])*100), cents = exact.map(Math.round);
 const diff = Math.round(day(tot)*100) - cents.reduce((a,b)=>a+b,0), step = Math.sign(diff);
 V.map((v,i)=>i).filter(i=>!NELLE_STORIE.has(V[i][1]))
