@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Il tuo Wrapped dello Stato</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: giocoso e diretto, come le storie di Instagram; mai condiscendente
+   IDEA: un "Wrapped" annuale che finisce con uno scontrino di carta vero
+   PICTURE: numeri giganti su campi di colore pieni, poi 100 monetine, poi lo scontrino
+   COLOUR and TYPE: giallo, rosa, blu elettrico, arancio, lilla; Archivo 900 + Space Mono per lo scontrino
+   LAYOUT: una storia verticale a schermo intero sul telefono, cornice da telefono su desktop */
+:root{color-scheme:light dark;--out:light-dark(#e9e6df,#0d0d0f);--ink:#111}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;margin:0}
+body{background:var(--out);font:500 17px/1.45 Archivo,system-ui,sans-serif;color:var(--ink);overflow:hidden;height:100dvh;display:grid;place-items:center}
+.phone{position:relative;width:min(440px,100vw);height:min(880px,100dvh);overflow:hidden;border-radius:clamp(0px,(100vw - 480px)*999,28px);box-shadow:0 30px 80px #0005}
+.bars{position:absolute;z-index:5;top:12px;left:12px;right:12px;display:flex;gap:4px}
+.bars i{flex:1;height:4px;border-radius:2px;background:#1113}
+.bars i b{display:block;height:100%;width:0;border-radius:2px;background:#111;transition:width .3s}
+.bars i.done b{width:100%}
+.slide{position:absolute;inset:0;padding:64px 28px 40px;display:flex;flex-direction:column;justify-content:center;gap:18px;opacity:0;pointer-events:none;transform:scale(1.04);transition:opacity .35s,transform .35s}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+h1,h2{font-weight:900;line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h1{font-size:clamp(40px,11vw,52px)}
+h2{font-size:clamp(28px,8vw,36px)}
+.big{font-weight:900;font-size:clamp(84px,30vw,136px);line-height:.9;letter-spacing:-.04em;white-space:nowrap}
+.big small{font-size:.4em;letter-spacing:0}
+p{max-width:34ch;text-wrap:pretty}
+.sticker{font-size:88px;line-height:1;display:inline-block;transform:rotate(-8deg);filter:drop-shadow(4px 6px 0 #0002)}
+.chip{align-self:flex-start;background:#111;color:#fff;font-weight:700;font-size:14px;padding:6px 12px;border-radius:99px}
+.hint{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:14px;font-weight:700;opacity:.6}
+.y{background:#ffd60a}.p{background:#ff5c9a}.b{background:#4361ff;--ink:#fff;color:#fff}.o{background:#ff7a1a}.l{background:#b9a3ff}.k{background:#111;color:#fff}
+.b .chip,.k .chip{background:#fff;color:#111}
+.waffle{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;width:100%;max-width:300px}
+.waffle span{aspect-ratio:1;border-radius:50%;box-shadow:inset -2px -3px 0 #0003;transform:scale(0);transition:transform .3s}
+.on .waffle span{transform:scale(1)}
+.leg{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:14px;font-weight:700}
+.leg span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px}
+.flow{display:grid;gap:10px;width:100%}
+.flow div{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;border-bottom:2px solid #1112;padding-bottom:8px}
+.flow b{font-size:28px;font-weight:900;white-space:nowrap}
+.k{justify-content:flex-start;overflow-y:auto;padding-top:56px}
+.receipt{background:#fbfaf6;color:#222;font:400 14px/1.5 "Space Mono",monospace;padding:22px 18px 28px;position:relative;
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%}
+.receipt .on-in{animation:print .5s both}
+.receipt h3{text-align:center;font-size:16px;font-weight:700}
+.receipt .c{text-align:center}
+.row{display:flex;gap:8px;align-items:baseline}
+.row .n{flex:1}.row .v{white-space:nowrap}
+.row .n::after{content:" ...................................";overflow:hidden;white-space:nowrap;display:inline-block;max-width:100%;vertical-align:bottom;opacity:.35}
+.row .n{display:flex;overflow:hidden;white-space:nowrap}
+hr{border:0;border-top:2px dashed #2226;margin:12px 0}
+.tot{font-weight:700;font-size:18px}
+.bc{height:46px;margin:14px auto 6px;width:80%;background:repeating-linear-gradient(90deg,#222 0 2px,#0000 2px 4px,#222 4px 7px,#0000 7px 9px,#222 9px 10px,#0000 10px 13px)}
+.src{font-size:12px;opacity:.7;margin-top:10px}
+button{font:700 16px Archivo,sans-serif;min-height:48px;padding:0 22px;border-radius:99px;border:0;background:#ffd60a;color:#111;cursor:pointer;margin-top:18px;align-self:center}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.cmp{display:grid;gap:12px;width:100%}
+.cmp div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-weight:700;font-size:15px}
+.cmp div i{grid-column:1/-1;height:14px;border-radius:7px;background:#1111}
+.cmp div i b{display:block;height:100%;border-radius:7px;background:currentColor;width:0;transition:width .7s .15s}
+.on .cmp div i b{width:var(--w)}
+.cmp em{font-style:normal;white-space:nowrap}
+.note{font-size:14px;opacity:.75}
+@keyframes print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+@media (prefers-reduced-motion:reduce){.slide,.waffle span,.bars b,.cmp div i b{transition:none}.receipt .on-in{animation:none}}
+</style>
+</head>
+<body>
+<main class="phone" id="ph" aria-live="polite">
+  <div class="bars" id="bars"></div>
+
+  <section class="slide y">
+    <span class="chip">Italia · 2024</span>
+    <h1>Il tuo Wrapped dello Stato</h1>
+    <p>Un anno di soldi pubblici, raccontato in un minuto. Pronto a scoprire quanto ha speso lo Stato per te?</p>
+    <div class="hint">Tocca per andare avanti →</div>
+  </section>
+
+  <section class="slide p">
+    <h2>Ogni giorno lo Stato ha speso per te</h2>
+    <div class="big"><span data-n="51.56" data-d="2">0</span><small> €</small></div>
+    <p>Sì, anche se non lavori. Anche per un neonato. È tutta la spesa pubblica divisa per ogni persona che vive in Italia.</p>
+  </section>
+
+  <section class="slide b">
+    <h2>In un anno fanno</h2>
+    <div class="big" style="font-size:clamp(64px,21vw,104px)"><span data-n="18820">0</span><small> €</small></div>
+    <p>Circa 1.570 € al mese a testa. Più della metà (55%) va a pensioni, sanità e aiuti: soldi che servono quando una persona non può lavorare perché è anziana, malata o ha perso il lavoro.</p>
+  </section>
+
+  <section class="slide o">
+    <span class="chip">Al primo posto</span>
+    <span class="sticker">👵</span>
+    <h2>I nonni in pensione</h2>
+    <div class="big"><span data-n="16.72" data-d="2">0</span><small> €</small></div>
+    <p>al giorno, per ognuno di noi. Quasi 1 euro su 3 va alle pensioni.</p>
+  </section>
+
+  <section class="slide y">
+    <span class="chip">Da sapere</span>
+    <h2>I tuoi contributi non finiscono in un salvadanaio</h2>
+    <p>I contributi che paga chi lavora oggi servono a pagare le pensioni di oggi. Quando andrai in pensione tu, la pagheranno i lavoratori di quel momento.</p>
+    <div class="cmp"><div><span>Pensioni pagate</span><em>16,72 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Contributi incassati</span><em>12,93 €</em><i><b style="--w:77.3%"></b></i></div></div>
+    <p class="note">Euro al giorno, a testa. I contributi non bastano: il resto arriva dalle altre tasse. Per questo conta quante persone lavorano.</p>
+  </section>
+
+  <section class="slide l">
+    <span class="chip">Al secondo posto</span>
+    <span class="sticker">🏥</span>
+    <h2>Ospedali e medici</h2>
+    <div class="big"><span data-n="6.79" data-d="2">0</span><small> €</small></div>
+    <p>al giorno. Pronto soccorso, medico di base, farmaci, vaccini.</p>
+  </section>
+
+  <section class="slide p">
+    <span class="chip">Dentro la sanità</span>
+    <h2>Curare costa tanto, prevenire pochissimo</h2>
+    <div class="cmp"><div><span>Ospedali</span><em>2,80 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Medici di base e visite</span><em>2,50 €</em><i><b style="--w:89.3%"></b></i></div><div><span>Farmaci</span><em>0,95 €</em><i><b style="--w:33.9%"></b></i></div><div><span>Prevenzione</span><em>0,31 €</em><i><b style="--w:11.1%"></b></i></div></div>
+    <p>Vaccini, screening e controlli ricevono 31 centesimi al giorno: meno di 5 € ogni 100 spesi in sanità.</p>
+  </section>
+
+  <section class="slide b">
+    <span class="sticker">🤝</span>
+    <h2>Aiuti a chi ha bisogno: a chi vanno</h2>
+    <div class="cmp"><div><span>Invalidità e malattia</span><em>1,76 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Famiglie con figli</span><em>1,50 €</em><i><b style="--w:85.2%"></b></i></div><div><span>Chi perde il lavoro</span><em>0,94 €</em><i><b style="--w:53.4%"></b></i></div><div><span>Chi è in povertà</span><em>0,70 €</em><i><b style="--w:39.8%"></b></i></div></div>
+    <p class="note">Euro al giorno, a testa. L'assegno unico per i figli e la NASpI per chi perde il lavoro sono qui.</p>
+  </section>
+
+  <section class="slide y">
+    <span class="sticker">🎒</span>
+    <h2>La scuola. Anche la tua.</h2>
+    <div class="big"><span data-n="4.15" data-d="2">0</span><small> €</small></div>
+    <p>al giorno. Dall'asilo all'università, con prof, aule, mense e scuolabus.</p>
+  </section>
+
+  <section class="slide p">
+    <span class="chip">Plot twist</span>
+    <span class="sticker">💳</span>
+    <h2>Interessi su vecchi prestiti</h2>
+    <div class="big"><span data-n="4.08" data-d="2">0</span><small> €</small></div>
+    <p>al giorno, quasi quanto la scuola. Negli anni lo Stato si è fatto prestare soldi. Questi sono solo gli interessi: come quando un amico ti presta 10 € e tu gliene ridai 11.</p>
+  </section>
+
+  <section class="slide o">
+    <span class="chip">Confronto</span>
+    <h2>Gli interessi pesano più del futuro</h2>
+    <div class="cmp"><div><span>Interessi sul debito</span><em>4,08 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Esercito</span><em>1,32 €</em><i><b style="--w:32.4%"></b></i></div><div><span>Ambiente</span><em>0,92 €</em><i><b style="--w:22.5%"></b></i></div><div><span>Ricerca scientifica</span><em>0,59 €</em><i><b style="--w:14.5%"></b></i></div><div><span>Università</span><em>0,43 €</em><i><b style="--w:10.5%"></b></i></div></div>
+    <p>Gli interessi costano quasi 10 volte le università. Ogni euro in più di debito oggi sono interessi da pagare domani, al posto di altro.</p>
+  </section>
+
+  <section class="slide y">
+    <h2>Ogni euro, in 100 monetine</h2>
+    <div class="waffle" id="waffle"></div>
+    <div class="leg" id="leg"></div>
+  </section>
+
+  <section class="slide l">
+    <span class="chip">Anche tu paghi le tasse</span>
+    <span class="sticker">🛍️</span>
+    <h2>Ogni volta che compri qualcosa</h2>
+    <p>Su una felpa da 30 € ci sono 5,41 € di IVA. Sulla benzina, le bollette e le sigarette ci sono anche le accise.</p>
+    <div class="cmp"><div><span>IVA, al giorno a testa</span><em>6,75 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Accise e imposte sui consumi</span><em>4,60 €</em><i><b style="--w:68.1%"></b></i></div></div>
+    <p class="note">Anche un ragazzo senza stipendio contribuisce: IVA e accise sono quasi un quarto delle entrate dello Stato.</p>
+  </section>
+
+  <section class="slide b">
+    <h2>E i soldi da dove arrivano?</h2>
+    <div class="flow">
+      <div><span>Tasse e contributi, al giorno</span><b>48,16 €</b></div>
+      <div><span>Spesa, al giorno</span><b>51,56 €</b></div>
+      <div><span>Mancano</span><b>3,40 €</b></div>
+    </div>
+    <p>Quei 3,40 € al giorno lo Stato li prende in prestito. Così il debito cresce, e l'anno dopo ci sono più interessi da pagare.</p>
+  </section>
+
+  <section class="slide k" id="last">
+    <span class="chip">Il tuo scontrino</span>
+    <div class="receipt" id="rc"></div>
+    <button id="again" type="button">Ricomincia</button>
+  </section>
+</main>
+
+<script>
+{
+const POP = 58934177, M = 1e6;
+const V = [
+  ["👵","Nonni in pensione",359572,"#ff7a1a"],
+  ["🏥","Ospedali e medici",146075,"#ff5c9a"],
+  ["🤝","Aiuti a chi ha bisogno",108563,"#4361ff"],
+  ["🎒","Scuola",89180,"#b9a3ff"],
+  ["💳","Interessi sui prestiti",87789,"#111111"],
+  ["🏛️","Far funzionare lo Stato",82625,"#2ec4b6"],
+  ["🏭","Aiuti alle aziende",60557,"#c9c2b0"],
+  ["🚆","Strade, treni e bus",51824,"#c9c2b0"],
+  ["🚓","Polizia e tribunali",39094,"#c9c2b0"],
+  ["🪖","Esercito",28301,"#c9c2b0"],
+  ["♻️","Rifiuti e ambiente",19828,"#c9c2b0"],
+  ["⚽","Musei e sport",18774,"#c9c2b0"],
+  ["💡","Case popolari e lampioni",16973,"#c9c2b0"]
+];
+const day = t => t*M/POP/365;
+const eur = (n,d=2) => n.toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d});
+const tot = V.reduce((a,v)=>a+v[2],0);
+
+/* 100 monetine: le prime 6 voci con il loro colore, il resto insieme */
+const groups = V.slice(0,6).map(v=>[v[1],v[2],v[3]]).concat([["Tutto il resto",V.slice(6).reduce((a,v)=>a+v[2],0),"#f4f1e8"]]);
+const raw = groups.map(g=>g[1]/tot*100), fl = raw.map(Math.floor);
+let left = 100 - fl.reduce((a,b)=>a+b,0);
+raw.map((r,i)=>[r-fl[i],i]).sort((a,b)=>b[0]-a[0]).slice(0,left).forEach(([,i])=>fl[i]++);
+let k = 0;
+document.getElementById("waffle").innerHTML = groups.map((g,i)=>Array.from({length:fl[i]},()=>`<span style="background:${g[2]};transition-delay:${(k++)*8}ms"></span>`).join("")).join("");
+document.getElementById("leg").innerHTML = groups.map((g,i)=>`<span style="--c:${g[2]}">${g[0]} ${fl[i]}</span>`).join("");
+
+/* scontrino finale */
+document.getElementById("rc").innerHTML = `
+  <h3>SCONTRINO PUBBLICO</h3>
+  <div class="c">Scontrino di un giorno qualunque<br>del 2024, per 1 residente</div><hr>
+  ${V.map(v=>`<div class="row"><span>${v[0]}</span><span class="n">${v[1]}</span><span class="v">${eur(day(v[2]))} €</span></div>`).join("")}
+  <hr><div class="row tot"><span class="n">TOTALE</span><span class="v">${eur(day(tot))} €</span></div>
+  <div class="row"><span class="n">Pagato con tasse</span><span class="v">48,16 €</span></div>
+  <div class="row"><span class="n">Messo sul conto (debito)</span><span class="v">3,40 €</span></div>
+  <div class="bc"></div>
+  <div class="c">GRAZIE E ARRIVEDERCI<br>al 2025</div>
+  <div class="src">Numeri veri: spesa e entrate pubbliche 2024 (Eurostat, COFOG), 58,9 milioni di residenti (ISTAT, 1° gennaio 2025). Non è quanto paghi tu: è la spesa totale divisa per tutti.</div>`;
+
+const S = [...document.querySelectorAll(".slide")];
+const bars = document.getElementById("bars");
+bars.innerHTML = S.map(()=>"<i><b></b></i>").join("");
+const B = [...bars.children];
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let cur = -1;
+
+function count(el){
+  const n = +el.dataset.n, d = +(el.dataset.d||0);
+  if (still){ el.textContent = eur(n,d); return; }
+  const t0 = performance.now(), D = 900;
+  const f = now => { const x = Math.min(1,(now-t0)/D), e = 1-(1-x)**3;
+    el.textContent = eur(n*e,d); if (x<1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+function go(i){
+  i = Math.max(0,Math.min(S.length-1,i)); if (i===cur) return;
+  cur = i;
+  S.forEach((s,j)=>s.classList.toggle("on",j===i));
+  B.forEach((b,j)=>b.classList.toggle("done",j<=i));
+  S[i].querySelectorAll("[data-n]").forEach(count);
+  const rc = document.getElementById("rc");
+  rc.classList.remove("on-in"); if (i===S.length-1){ void rc.offsetWidth; rc.classList.add("on-in"); S[i].scrollTop = 0; }
+}
+document.getElementById("ph").addEventListener("click",e=>{
+  if (e.target.closest("button")) return;
+  if (cur===S.length-1 && !e.target.closest(".bars")) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  go(e.clientX - r.left < r.width*.3 ? cur-1 : cur+1);
+});
+document.getElementById("again").addEventListener("click",()=>go(0));
+addEventListener("keydown",e=>{
+  if (e.key==="ArrowRight"||e.key===" ") { e.preventDefault(); go(cur+1); }
+  if (e.key==="ArrowLeft") go(cur-1);
+});
+go(0);
+}
+</script>
+</body>
+</html>

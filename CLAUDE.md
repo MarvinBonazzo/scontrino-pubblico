@@ -10,6 +10,7 @@ Progetto gemello dello "Scontrino delle tasse" (stipendio): stesso stile, stessa
 - `comuni-12mesi.json`: i dati dei Comuni, caricati con `fetch` quando si apre la finestra di scelta.
 - `scripts/aggiorna_comuni.py`: rifà `comuni-12mesi.json` dai file open di SIOPE.
 - `data/raw/`: gli zip SIOPE scaricati dallo script (non serve committarli, sono grandi).
+- `wrapped/`: il Wrapped dello Stato, versione a storie per ragazzi. Regole e struttura in `wrapped/CLAUDE.md`. Se cambiano i dati di `ITALIA`, vanno ricalcolate anche le cifre scritte a mano lì.
 
 ## Vedere la pagina in locale
 

@@ -4,6 +4,10 @@ Quanto spende il settore pubblico per ogni persona che vive in Italia, e da dove
 
 ### 👉 [Apri lo scontrino](https://marvinbonazzo.github.io/scontrino-pubblico/)
 
+### 🎁 [Apri il Wrapped dello Stato](https://marvinbonazzo.github.io/scontrino-pubblico/wrapped/)
+
+Gli stessi numeri dell'Italia raccontati a storie, come lo Spotify Wrapped, pensati per ragazzi delle medie e delle superiori: una schermata, un'idea, e alla fine uno scontrino di carta di un giorno qualunque. Si tocca a destra per andare avanti, a sinistra per tornare indietro.
+
 Progetto gemello: **[Scontrino delle tasse](https://marvinbonazzo.github.io/scontrino-stipendio/)**, che parte dal tuo stipendio e ti mostra quanto vai a pagare di contributi e IRPEF ([codice](https://github.com/MarvinBonazzo/scontrino-stipendio)).
 
 ---
@@ -100,3 +104,4 @@ Poi in `index.html` aggiorna i testi del periodo (cerca "ottobre 2025 – settem
 | `index.html` | La pagina completa: stile, testi, calcoli e i dati dell'Italia. |
 | `comuni-12mesi.json` | I dati di tutti i Comuni, caricati quando apri la ricerca. |
 | `scripts/aggiorna_comuni.py` | Rifà `comuni-12mesi.json` dai file open di SIOPE. |
+| `wrapped/index.html` | Il Wrapped dello Stato: la versione a storie, in un solo file. Usa i dati dell'Italia di `index.html` trasformati in euro al giorno per residente. |
