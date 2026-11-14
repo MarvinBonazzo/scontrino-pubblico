@@ -78,6 +78,27 @@ u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offs
 .sheet h3{font-weight:900;font-size:22px;line-height:1.1}
 .sheet p{max-width:none;font-size:16px}
 .sheet button{justify-self:start;margin:0;font-size:15px;min-height:44px;padding:0 18px;background:#111;color:#fff}
+/* Bottoni finali: le due pagine complete e il pannello con fonti, calcoli e numeri interi */
+.ends{display:grid;gap:10px;width:100%;margin-top:14px}
+.ends .link{margin:0;width:100%;display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;font:700 16px Archivo,sans-serif;min-height:48px;padding:10px 22px;line-height:1.25;border-radius:99px;border:0;background:#fff;color:#111;cursor:pointer}
+.ends .link.src{background:transparent;color:#fff;border:2px solid #fff}
+.ends .link:focus-visible{outline:3px solid #ffd60a;outline-offset:3px}
+/* Pannello fonti e calcoli: copre il telefono e scorre */
+.info{position:absolute;inset:0;z-index:20;background:#fbfaf6;color:#111;overflow-y:auto;padding:0 20px 32px;font-size:15px;line-height:1.45}
+.info[hidden]{display:none}
+.info-top{position:sticky;top:0;z-index:1;background:#fbfaf6;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:18px 0 10px;border-bottom:2px solid #111}
+.info h3{font-weight:900;font-size:22px;line-height:1.1}
+.info h4{font-weight:900;font-size:17px;margin:20px 0 6px}
+.info p{max-width:none;margin:6px 0}
+.info small{display:block;font-size:13px;opacity:.7;margin-top:4px}
+.info table{width:100%;border-collapse:collapse;font:400 12.5px/1.4 "Space Mono",monospace;margin-top:6px}
+.info td{padding:5px 0;border-bottom:1px dashed #2223;vertical-align:top}
+.info td:last-child{text-align:right;white-space:nowrap;padding-left:10px}
+.info tr.tot td{font-weight:700;border-bottom:0;border-top:2px solid #111}
+.info .f{font:400 12.5px/1.55 "Space Mono",monospace;background:#efece4;border-radius:8px;padding:8px 10px;margin:6px 0}
+.info ul{margin:6px 0 0;padding-left:18px;display:grid;gap:6px}
+.info a{color:#3048d6}
+.info .x{margin:0;flex:none;width:40px;min-height:40px;padding:0;border:0;border-radius:99px;background:#111;color:#fff;font:700 16px Archivo,sans-serif;cursor:pointer}
 @keyframes up{from{transform:translateY(20px);opacity:0}}
 @keyframes print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
 @media (prefers-reduced-motion:reduce){.slide,.waffle span,.bars b,.cmp div i b{transition:none}.receipt .on-in{animation:none}}
@@ -212,8 +233,17 @@ u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offs
     <span class="chip">Il tuo scontrino</span>
     <div class="receipt" id="rc"></div>
     <button id="again" type="button">Ricomincia</button>
-    <a class="link" href="https://marvinbonazzo.github.io/scontrino-stipendio/wrapped/">E tu quanto ci metti? Il Wrapped del tuo stipendio →</a>
+    <div class="ends">
+      <a class="link" href="https://marvinbonazzo.github.io/scontrino-stipendio/">Scontrino dello stipendio</a>
+      <a class="link" href="https://marvinbonazzo.github.io/scontrino-pubblico/">Scontrino dello Stato</a>
+      <button class="link src" id="info-open" type="button">Fonti, calcoli e numeri interi</button>
+    </div>
   </section>
+
+  <div class="info" id="info" hidden role="dialog" aria-labelledby="info-t">
+    <div class="info-top"><h3 id="info-t">Fonti, calcoli e numeri interi</h3><button class="x" id="info-x" type="button" aria-label="Chiudi">✕</button></div>
+    <div id="info-body"></div>
+  </div>
 
   <div class="sheet" id="sheet" role="dialog" aria-labelledby="sh-t" hidden>
     <h3 id="sh-t"></h3>
@@ -273,6 +303,49 @@ document.getElementById("rc").innerHTML = `
   <div class="bc"></div>
   <div class="c">GRAZIE E ARRIVEDERCI<br>al 2025</div>
   <div class="src">Numeri veri: spesa e entrate pubbliche 2024 (<u data-w="eurostat">Eurostat</u>, <u data-w="cofog">COFOG</u>), debito pubblico a fine 2024 (Banca d'Italia), 58,9 milioni di residenti (<u data-w="istat">ISTAT</u>, 1° gennaio 2025). Non è quanto paghi tu: è la spesa totale divisa per tutti.</div>`;
+
+/* Pannello fonti e calcoli: gli stessi numeri delle storie, ma interi (in euro, per tutta l'Italia) e con le formule */
+const ENTRATE = [["Contributi sociali",278140],["IRPEF e altre imposte sui redditi delle persone",273638],["IVA",145187],["Accise e altre imposte sui consumi",99042],["IRAP, IMU e altre imposte sulla produzione",65371],["IRES, imposte sugli utili delle società",58665],["Vendita di servizi: ticket, rette, tariffe",51753],["Trasferimenti, compresi i fondi UE",34434],["Interessi, affitti e dividendi",16729],["Altre imposte",13066]];
+const DEBITO = 2966900;   // milioni di euro, Banca d'Italia, fine 2024
+const intero = m => (m*M).toLocaleString("it-IT",{useGrouping:"always"}) + " €";
+const num = n => n.toLocaleString("it-IT",{useGrouping:"always"});
+const tab = (rows, totName) => `<table>${rows.map(r=>`<tr><td>${r[0]}</td><td>${intero(r[1])}</td></tr>`).join("")}<tr class="tot"><td>${totName}</td><td>${intero(rows.reduce((a,r)=>a+r[1],0))}</td></tr></table>`;
+const entTot = ENTRATE.reduce((a,r)=>a+r[1],0);
+document.getElementById("info-body").innerHTML = `
+  <h4>Spesa pubblica 2024, per voce</h4>
+  <p>Tutto quello che hanno speso Stato, Regioni, Comuni e INPS insieme nel 2024.</p>
+  ${tab(V.map(v=>[v[0]+" "+v[1], v[2]]), "Totale spesa")}
+  <small>Fonte: <u data-w="eurostat">Eurostat</u>, spesa delle amministrazioni pubbliche per funzione (<u data-w="cofog">COFOG</u>), tabella gov_10a_exp. Eurostat pubblica i dati in milioni di euro: gli ultimi sei zeri vengono da lì.</small>
+
+  <h4>Entrate pubbliche 2024</h4>
+  ${tab(ENTRATE, "Totale entrate")}
+  <small>Fonte: Eurostat, conti delle amministrazioni pubbliche, tabella gov_10a_main.</small>
+
+  <h4>Deficit e debito</h4>
+  <div class="f">Spesa − entrate = ${intero(tot)} − ${intero(entTot)}<br>= <b>${intero(tot-entTot)}</b> di <u data-w="deficit">deficit</u> nel 2024</div>
+  <div class="f"><u data-w="debito">Debito pubblico</u> a fine 2024: <b>${intero(DEBITO)}</b></div>
+  <small>Fonte del debito: Banca d'Italia, «Finanza pubblica: fabbisogno e debito», dato di fine 2024 rivisto a febbraio 2026.</small>
+
+  <h4>Residenti</h4>
+  <div class="f"><b>${num(POP)}</b> persone al 1° gennaio 2025</div>
+  <small>Fonte: <u data-w="istat">ISTAT</u>, popolazione residente.</small>
+
+  <h4>I calcoli delle storie</h4>
+  <p>Ogni cifra «al giorno, a testa» è il totale diviso per i residenti e per 365 giorni.</p>
+  <div class="f">Spesa al giorno a testa<br>= ${intero(tot)} ÷ ${num(POP)} ÷ 365<br>= <b>${eur(day(tot))} €</b></div>
+  <div class="f">Pensioni al giorno a testa<br>= ${intero(V[0][2])} ÷ ${num(POP)} ÷ 365<br>= <b>${eur(day(V[0][2]))} €</b></div>
+  <div class="f">Spesa in un anno a testa<br>= ${intero(tot)} ÷ ${num(POP)}<br>= <b>${eur(tot*M/POP,0)} €</b></div>
+  <div class="f">Debito a testa<br>= ${intero(DEBITO)} ÷ ${num(POP)}<br>= <b>${eur(DEBITO*M/POP,0)} €</b></div>
+  <p>Le 100 monetine sono la parte di ogni voce sul totale della spesa, arrotondata. Nello scontrino ogni riga è arrotondata al centesimo e alcuni centesimi sono sistemati perché la somma torni con il totale.</p>
+
+  <h4>Fonti</h4>
+  <ul>
+    <li><a href="https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table" target="_blank" rel="noopener">Eurostat, gov_10a_exp</a>: spesa per funzione</li>
+    <li><a href="https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table" target="_blank" rel="noopener">Eurostat, gov_10a_main</a>: entrate e spese totali</li>
+    <li><a href="https://www.bancaditalia.it/pubblicazioni/finanza-pubblica/" target="_blank" rel="noopener">Banca d'Italia, Finanza pubblica</a>: debito</li>
+    <li><a href="https://demo.istat.it/" target="_blank" rel="noopener">ISTAT, demografia</a>: residenti</li>
+  </ul>
+  <p>Lo stesso conto, con l'elenco completo e i Comuni, è sullo <a href="https://marvinbonazzo.github.io/scontrino-pubblico/">Scontrino dello Stato</a>.</p>`;
 
 const S = [...document.querySelectorAll(".slide")];
 const bars = document.getElementById("bars");
@@ -341,10 +414,14 @@ document.getElementById("ph").addEventListener("click",e=>{
   go(e.clientX - r.left < r.width*.3 ? cur-1 : cur+1);
 });
 document.getElementById("again").addEventListener("click",()=>go(0));
+const info = document.getElementById("info");
+document.getElementById("info-open").addEventListener("click",()=>{ info.hidden = false; info.scrollTop = 0; document.getElementById("info-x").focus({preventScroll:true}); });
+document.getElementById("info-x").addEventListener("click",()=>{ info.hidden = true; document.getElementById("info-open").focus({preventScroll:true}); });
 addEventListener("keydown",e=>{
   if (!sheet.hidden && (e.key==="Escape" || e.key.startsWith("Arrow") || e.key===" ")){ e.preventDefault(); closeSheet(); return; }
   const u = e.target.closest && e.target.closest("u[data-w]");
   if (u && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); explain(u); return; }
+  if (!info.hidden){ if (e.key==="Escape"){ info.hidden = true; document.getElementById("info-open").focus({preventScroll:true}); } return; }
   if (e.key==="ArrowRight"||e.key===" ") { e.preventDefault(); go(cur+1); }
   if (e.key==="ArrowLeft") go(cur-1);
 });

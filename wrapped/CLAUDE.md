@@ -26,8 +26,8 @@ Anche le entrate al giorno della slide "E i soldi da dove arrivano?" (12,93 cont
 ## Parole spiegate (glossario)
 Come nel Wrapped dello stipendio: ogni parola tecnica si scrive `<u data-w="chiave">parola</u>` e toccandola si apre un cartoncino in basso. Le spiegazioni sono nell'oggetto `GLOSS`, una o due frasi senza altre parole difficili. Se aggiungi una parola tecnica nuova, aggiungi anche la sua voce.
 
-## Collegamenti
-L'ultima slide ha un link al Wrapped dello stipendio ("E tu quanto ci metti?"), che a sua volta finisce con un link a questo.
+## Fine della storia
+Sotto lo scontrino finale: "Ricomincia", poi i link alle due pagine complete ("Scontrino dello stipendio", "Scontrino dello Stato") e il bottone "Fonti, calcoli e numeri interi". Il bottone apre il pannello `#info`: spesa ed entrate 2024 in euro interi (array `V` ed `ENTRATE`), deficit, debito (`DEBITO`), residenti, le formule delle storie e i link alle fonti. Se cambi un dato, il pannello si aggiorna da solo tranne i testi delle fonti.
 
 ## Regole di testo
 - Si dà sempre del tu, con rispetto: anche quando si sceglie un lavoro di esempio, chi legge è "tu" ("il tuo netto", "paghi").
