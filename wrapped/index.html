@@ -48,10 +48,12 @@ p{max-width:34ch;text-wrap:pretty}
 .receipt .on-in{animation:print .5s both}
 .receipt h3{text-align:center;font-size:16px;font-weight:700}
 .receipt .c{text-align:center}
-.row{display:flex;gap:8px;align-items:baseline}
-.row .n{flex:1}.row .v{white-space:nowrap}
-.row .n::after{content:" ...................................";overflow:hidden;white-space:nowrap;display:inline-block;max-width:100%;vertical-align:bottom;opacity:.35}
-.row .n{display:flex;overflow:hidden;white-space:nowrap}
+/* Puntini tra nome e cifra disegnati come sfondo sull'ultima riga: i nomi lunghi vanno a capo invece di finire sotto la cifra */
+.row{display:flex;gap:8px;align-items:flex-end}
+.row>span:first-child:not(.n){align-self:flex-start}
+.row .n{flex:1;background:radial-gradient(circle,#2226 1px,#0000 1.5px) 0 calc(100% - 5px)/8px 4px repeat-x}
+.row .n span{background:#fbfaf6;padding-right:6px}
+.row .v{white-space:nowrap}
 hr{border:0;border-top:2px dashed #2226;margin:12px 0}
 .tot{font-weight:700;font-size:18px}
 .bc{height:46px;margin:14px auto 6px;width:80%;background:repeating-linear-gradient(90deg,#222 0 2px,#0000 2px 4px,#222 4px 7px,#0000 7px 9px,#222 9px 10px,#0000 10px 13px)}
@@ -118,7 +120,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 
   <section class="slide p">
     <span class="chip">Dentro la sanità</span>
-    <h2>Curare costa tanto, prevenire pochissimo</h2>
+    <h2>Come si dividono i soldi della sanità</h2>
     <div class="cmp"><div><span>Ospedali</span><em>2,80 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Medici di base e visite</span><em>2,50 €</em><i><b style="--w:89.3%"></b></i></div><div><span>Farmaci</span><em>0,95 €</em><i><b style="--w:33.9%"></b></i></div><div><span>Prevenzione</span><em>0,31 €</em><i><b style="--w:11.1%"></b></i></div></div>
     <p>Vaccini, screening e controlli ricevono 31 centesimi al giorno: meno di 5 € ogni 100 spesi in sanità.</p>
   </section>
@@ -147,8 +149,8 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 
   <section class="slide o">
     <span class="chip">Confronto</span>
-    <h2>Gli interessi pesano più del futuro</h2>
-    <div class="cmp"><div><span>Interessi sul debito</span><em>4,08 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Esercito</span><em>1,32 €</em><i><b style="--w:32.4%"></b></i></div><div><span>Ambiente</span><em>0,92 €</em><i><b style="--w:22.5%"></b></i></div><div><span>Ricerca scientifica</span><em>0,59 €</em><i><b style="--w:14.5%"></b></i></div><div><span>Università</span><em>0,43 €</em><i><b style="--w:10.5%"></b></i></div></div>
+    <h2>Gli interessi a confronto con altre spese</h2>
+    <div class="cmp"><div><span>Interessi sul debito</span><em>4,08 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Difesa</span><em>1,32 €</em><i><b style="--w:32.4%"></b></i></div><div><span>Ambiente</span><em>0,92 €</em><i><b style="--w:22.5%"></b></i></div><div><span>Ricerca di base</span><em>0,59 €</em><i><b style="--w:14.5%"></b></i></div><div><span>Università</span><em>0,43 €</em><i><b style="--w:10.5%"></b></i></div></div>
     <p>Gli interessi costano quasi 10 volte le università. Ogni euro in più di debito oggi sono interessi da pagare domani, al posto di altro.</p>
   </section>
 
@@ -197,7 +199,7 @@ const V = [
   ["🏭","Aiuti alle aziende",60557,"#c9c2b0"],
   ["🚆","Strade, treni e bus",51824,"#c9c2b0"],
   ["🚓","Polizia e tribunali",39094,"#c9c2b0"],
-  ["🪖","Esercito",28301,"#c9c2b0"],
+  ["🪖","Difesa",28301,"#c9c2b0"],
   ["♻️","Rifiuti e ambiente",19828,"#c9c2b0"],
   ["⚽","Musei e sport",18774,"#c9c2b0"],
   ["💡","Case popolari e lampioni",16973,"#c9c2b0"]
@@ -215,14 +217,23 @@ let k = 0;
 document.getElementById("waffle").innerHTML = groups.map((g,i)=>Array.from({length:fl[i]},()=>`<span style="background:${g[2]};transition-delay:${(k++)*8}ms"></span>`).join("")).join("");
 document.getElementById("leg").innerHTML = groups.map((g,i)=>`<span style="--c:${g[2]}">${g[0]} ${fl[i]}</span>`).join("");
 
-/* scontrino finale */
+/* scontrino finale.
+   Arrotondando ogni riga al centesimo la somma non torna col totale (51,58 invece di 51,56).
+   Sistemo i centesimi in più o in meno sulle righe dove la correzione resta più vicina al valore vero
+   (sempre meno di 1 centesimo), lasciando stare le voci che compaiono anche nelle storie. */
+const NELLE_STORIE = new Set(["Nonni in pensione","Ospedali e medici","Scuola","Interessi sui prestiti","Difesa","Rifiuti e ambiente"]);
+const exact = V.map(v=>day(v[2])*100), cents = exact.map(Math.round);
+const diff = Math.round(day(tot)*100) - cents.reduce((a,b)=>a+b,0), step = Math.sign(diff);
+V.map((v,i)=>i).filter(i=>!NELLE_STORIE.has(V[i][1]))
+  .sort((a,b)=>Math.abs(cents[a]+step-exact[a]) - Math.abs(cents[b]+step-exact[b]))
+  .slice(0,Math.abs(diff)).forEach(i=>cents[i]+=step);
 document.getElementById("rc").innerHTML = `
   <h3>SCONTRINO PUBBLICO</h3>
   <div class="c">Scontrino di un giorno qualunque<br>del 2024, per 1 residente</div><hr>
-  ${V.map(v=>`<div class="row"><span>${v[0]}</span><span class="n">${v[1]}</span><span class="v">${eur(day(v[2]))} €</span></div>`).join("")}
-  <hr><div class="row tot"><span class="n">TOTALE</span><span class="v">${eur(day(tot))} €</span></div>
-  <div class="row"><span class="n">Pagato con tasse</span><span class="v">48,16 €</span></div>
-  <div class="row"><span class="n">Messo sul conto (debito)</span><span class="v">3,40 €</span></div>
+  ${V.map((v,i)=>`<div class="row"><span>${v[0]}</span><span class="n"><span>${v[1]}</span></span><span class="v">${eur(cents[i]/100)} €</span></div>`).join("")}
+  <hr><div class="row tot"><span class="n"><span>TOTALE</span></span><span class="v">${eur(day(tot))} €</span></div>
+  <div class="row"><span class="n"><span>Pagato con tasse</span></span><span class="v">48,16 €</span></div>
+  <div class="row"><span class="n"><span>Messo sul conto (debito)</span></span><span class="v">3,40 €</span></div>
   <div class="bc"></div>
   <div class="c">GRAZIE E ARRIVEDERCI<br>al 2025</div>
   <div class="src">Numeri veri: spesa e entrate pubbliche 2024 (Eurostat, COFOG), 58,9 milioni di residenti (ISTAT, 1° gennaio 2025). Non è quanto paghi tu: è la spesa totale divisa per tutti.</div>`;
