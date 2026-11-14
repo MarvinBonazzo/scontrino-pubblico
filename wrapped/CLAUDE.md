@@ -21,6 +21,13 @@ Stessi dati di `scontrino-pubblico/index.html` (oggetto `ITALIA`):
 - Formula per gli euro al giorno: `spesa in € / 58.934.177 / 365`.
 
 Le cifre scritte a mano nelle slide (es. 2,80 € ospedali, 6,75 € IVA, 12,93 € contributi) sono calcolate con questa formula dalle sotto-voci di `ITALIA`. Se aggiorni i dati, ricalcola anche quelle.
+Anche le entrate al giorno della slide "E i soldi da dove arrivano?" (12,93 contributi, 12,72 IRPEF, 6,75 IVA, 4,60 accise, 3,04 IRAP e IMU, 2,73 IRES, 2,41 servizi, 2,98 il resto: somma 48,16) e il debito a testa (2.966,9 mld di Banca d'Italia ÷ residenti = 50.343 €). "Il resto" è arrotondato a 2,98 invece di 2,99 perché la somma torni con il totale.
+
+## Parole spiegate (glossario)
+Come nel Wrapped dello stipendio: ogni parola tecnica si scrive `<u data-w="chiave">parola</u>` e toccandola si apre un cartoncino in basso. Le spiegazioni sono nell'oggetto `GLOSS`, una o due frasi senza altre parole difficili. Se aggiungi una parola tecnica nuova, aggiungi anche la sua voce.
+
+## Collegamenti
+L'ultima slide ha un link al Wrapped dello stipendio ("E tu quanto ci metti?"), che a sua volta finisce con un link a questo.
 
 ## Regole di testo
 - Linguaggio per un ragazzo di 12-14 anni: frasi brevi, niente sigle senza spiegazione.
@@ -30,5 +37,4 @@ Le cifre scritte a mano nelle slide (es. 2,80 € ospedali, 6,75 € IVA, 12,93 
 
 ## Idee per i prossimi passi
 - Versione Comune: stesse storie usando `comuni-12mesi.json`.
-- Versione Scontrino delle tasse con personaggi (pizzaiolo, infermiera, programmatrice) al posto del campo stipendio.
 - Pulsante per esportare lo scontrino finale come immagine da condividere.

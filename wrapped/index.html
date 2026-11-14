@@ -26,7 +26,7 @@ body{background:var(--out);font:500 17px/1.45 Archivo,system-ui,sans-serif;color
 h1,h2{font-weight:900;line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
 h1{font-size:clamp(40px,11vw,52px)}
 h2{font-size:clamp(28px,8vw,36px)}
-.big{font-weight:900;font-size:clamp(84px,30vw,136px);line-height:.9;letter-spacing:-.04em;white-space:nowrap}
+.big{font-weight:900;font-size:clamp(64px,22vw,112px);line-height:.9;letter-spacing:-.04em;white-space:nowrap}
 .big small{font-size:.4em;letter-spacing:0}
 p{max-width:34ch;text-wrap:pretty}
 .sticker{font-size:88px;line-height:1;display:inline-block;transform:rotate(-8deg);filter:drop-shadow(4px 6px 0 #0002)}
@@ -67,6 +67,18 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .on .cmp div i b{width:var(--w)}
 .cmp em{font-style:normal;white-space:nowrap}
 .note{font-size:14px;opacity:.75}
+a.link{display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;font:700 16px Archivo,sans-serif;min-height:48px;padding:10px 22px;line-height:1.25;border-radius:99px;background:#fff;color:#111;align-self:center;margin-top:10px}
+.tip{font-size:14px;font-weight:700}
+u{text-decoration:underline dotted 2px;text-underline-offset:3px}
+u[data-w]{cursor:pointer;border-radius:4px}
+u[data-w]:hover{background:#fff4}
+u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.sheet{position:absolute;z-index:10;left:12px;right:12px;bottom:12px;background:#fff;color:#111;border:3px solid #111;border-radius:20px;box-shadow:4px 4px 0 #111;padding:18px 18px 16px;display:grid;gap:8px;animation:up .2s both}
+.sheet[hidden]{display:none}
+.sheet h3{font-weight:900;font-size:22px;line-height:1.1}
+.sheet p{max-width:none;font-size:16px}
+.sheet button{justify-self:start;margin:0;font-size:15px;min-height:44px;padding:0 18px;background:#111;color:#fff}
+@keyframes up{from{transform:translateY(20px);opacity:0}}
 @keyframes print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
 @media (prefers-reduced-motion:reduce){.slide,.waffle span,.bars b,.cmp div i b{transition:none}.receipt .on-in{animation:none}}
 </style>
@@ -78,14 +90,15 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
   <section class="slide y">
     <span class="chip">Italia · 2024</span>
     <h1>Il tuo Wrapped dello Stato</h1>
-    <p>Un anno di soldi pubblici, raccontato in un minuto. Pronto a scoprire quanto ha speso lo Stato per te?</p>
+    <p>Un anno di soldi pubblici, raccontato in un minuto: quanto ha speso lo Stato per te, da dove arrivano i soldi e perché non bastano.</p>
+    <p class="tip">👆 Le parole <u>sottolineate</u> si possono toccare: ti spiegano cosa vogliono dire.</p>
     <div class="hint">Tocca per andare avanti →</div>
   </section>
 
   <section class="slide p">
     <h2>Ogni giorno lo Stato ha speso per te</h2>
     <div class="big"><span data-n="51.56" data-d="2">0</span><small> €</small></div>
-    <p>Sì, anche se non lavori. Anche per un neonato. È tutta la spesa pubblica divisa per ogni persona che vive in Italia.</p>
+    <p>Sì, anche se non lavori. Anche per un neonato. È tutta la <u data-w="spesa">spesa pubblica</u> divisa per ogni persona che vive in Italia, i <u data-w="residenti">residenti</u>.</p>
   </section>
 
   <section class="slide b">
@@ -105,7 +118,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
   <section class="slide y">
     <span class="chip">Da sapere</span>
     <h2>I tuoi contributi non finiscono in un salvadanaio</h2>
-    <p>I contributi che paga chi lavora oggi servono a pagare le pensioni di oggi. Quando andrai in pensione tu, la pagheranno i lavoratori di quel momento.</p>
+    <p>I <u data-w="contributi">contributi</u> che paga chi lavora oggi servono a pagare le pensioni di oggi. Quando andrai in pensione tu, la pagheranno i lavoratori di quel momento.</p>
     <div class="cmp"><div><span>Pensioni pagate</span><em>16,72 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Contributi incassati</span><em>12,93 €</em><i><b style="--w:77.3%"></b></i></div></div>
     <p class="note">Euro al giorno, a testa. I contributi non bastano: il resto arriva dalle altre tasse. Per questo conta quante persone lavorano.</p>
   </section>
@@ -129,7 +142,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     <span class="sticker">🤝</span>
     <h2>Aiuti a chi ha bisogno: a chi vanno</h2>
     <div class="cmp"><div><span>Invalidità e malattia</span><em>1,76 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Famiglie con figli</span><em>1,50 €</em><i><b style="--w:85.2%"></b></i></div><div><span>Chi perde il lavoro</span><em>0,94 €</em><i><b style="--w:53.4%"></b></i></div><div><span>Chi è in povertà</span><em>0,70 €</em><i><b style="--w:39.8%"></b></i></div></div>
-    <p class="note">Euro al giorno, a testa. L'assegno unico per i figli e la NASpI per chi perde il lavoro sono qui.</p>
+    <p class="note">Euro al giorno, a testa. L'<u data-w="assegno">assegno unico</u> per i figli e la <u data-w="naspi">NASpI</u> per chi perde il lavoro sono qui.</p>
   </section>
 
   <section class="slide y">
@@ -144,7 +157,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     <span class="sticker">💳</span>
     <h2>Interessi su vecchi prestiti</h2>
     <div class="big"><span data-n="4.08" data-d="2">0</span><small> €</small></div>
-    <p>al giorno, quasi quanto la scuola. Negli anni lo Stato si è fatto prestare soldi. Questi sono solo gli interessi: come quando un amico ti presta 10 € e tu gliene ridai 11.</p>
+    <p>al giorno, quasi quanto la scuola. Negli anni lo Stato si è fatto prestare soldi: è il <u data-w="debito">debito pubblico</u>. Questi sono solo gli <u data-w="interessi">interessi</u>: come quando un amico ti presta 10 € e tu gliene ridai 11.</p>
   </section>
 
   <section class="slide o">
@@ -164,26 +177,49 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     <span class="chip">Anche tu paghi le tasse</span>
     <span class="sticker">🛍️</span>
     <h2>Ogni volta che compri qualcosa</h2>
-    <p>Su una felpa da 30 € ci sono 5,41 € di IVA. Sulla benzina, le bollette e le sigarette ci sono anche le accise.</p>
+    <p>Su una felpa da 30 € ci sono 5,41 € di <u data-w="iva">IVA</u>. Sulla benzina, le bollette e le sigarette ci sono anche le <u data-w="accise">accise</u>.</p>
     <div class="cmp"><div><span>IVA, al giorno a testa</span><em>6,75 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Accise e imposte sui consumi</span><em>4,60 €</em><i><b style="--w:68.1%"></b></i></div></div>
     <p class="note">Anche un ragazzo senza stipendio contribuisce: IVA e accise sono quasi un quarto delle entrate dello Stato.</p>
   </section>
 
-  <section class="slide b">
+  <section class="slide y">
+    <span class="chip">Entrate, al giorno a testa</span>
     <h2>E i soldi da dove arrivano?</h2>
+    <div class="cmp"><div><span><u data-w="contributi">Contributi</u></span><em>12,93 €</em><i><b style="--w:100.0%"></b></i></div><div><span><u data-w="irpef">IRPEF</u></span><em>12,72 €</em><i><b style="--w:98.4%"></b></i></div><div><span><u data-w="iva">IVA</u></span><em>6,75 €</em><i><b style="--w:52.2%"></b></i></div><div><span><u data-w="accise">Accise</u> e consumi</span><em>4,60 €</em><i><b style="--w:35.6%"></b></i></div><div><span><u data-w="irap">IRAP</u>, <u data-w="imu">IMU</u> e simili</span><em>3,04 €</em><i><b style="--w:23.5%"></b></i></div><div><span>Tasse delle aziende (<u data-w="ires">IRES</u>)</span><em>2,73 €</em><i><b style="--w:21.1%"></b></i></div><div><span>Ticket, rette, biglietti</span><em>2,41 €</em><i><b style="--w:18.6%"></b></i></div><div><span>Fondi UE, affitti e altro</span><em>2,98 €</em><i><b style="--w:23.0%"></b></i></div></div>
+    <p class="note">Contributi e IRPEF si vedono in busta paga. IVA e accise si pagano a ogni acquisto, a qualsiasi età.</p>
+  </section>
+
+  <section class="slide b">
+    <span class="chip">I conti non tornano</span>
+    <h2>Entra meno di quanto si spende</h2>
     <div class="flow">
       <div><span>Tasse e contributi, al giorno</span><b>48,16 €</b></div>
       <div><span>Spesa, al giorno</span><b>51,56 €</b></div>
       <div><span>Mancano</span><b>3,40 €</b></div>
     </div>
-    <p>Quei 3,40 € al giorno lo Stato li prende in prestito. Così il debito cresce, e l'anno dopo ci sono più interessi da pagare.</p>
+    <p>Quei 3,40 € al giorno sono il <u data-w="deficit">deficit</u>. Lo Stato li prende in prestito vendendo <u data-w="btp">BTP e BOT</u>: come pagare con la carta di credito. Così il debito cresce, e l'anno dopo ci sono più interessi da pagare.</p>
+  </section>
+
+  <section class="slide o">
+    <span class="chip">Il conto di tutti gli anni</span>
+    <span class="sticker">🧾</span>
+    <h2>Il debito pubblico, a testa</h2>
+    <div class="big" style="font-size:clamp(56px,18vw,96px)"><span data-n="50343">0</span><small> €</small></div>
+    <p>Tutti i prestiti degli anni passati non ancora restituiti: 2.967 miliardi alla fine del 2024, divisi per ogni persona che vive in Italia. Non vanno ridati tutti insieme: quando un prestito scade, spesso se ne chiede uno nuovo. Ma gli interessi si pagano ogni anno.</p>
   </section>
 
   <section class="slide k" id="last">
     <span class="chip">Il tuo scontrino</span>
     <div class="receipt" id="rc"></div>
     <button id="again" type="button">Ricomincia</button>
+    <a class="link" href="https://marvinbonazzo.github.io/scontrino-stipendio/wrapped/">E tu quanto ci metti? Il Wrapped del tuo stipendio →</a>
   </section>
+
+  <div class="sheet" id="sheet" role="dialog" aria-labelledby="sh-t" hidden>
+    <h3 id="sh-t"></h3>
+    <p id="sh-p"></p>
+    <button type="button" id="sh-ok">Ho capito</button>
+  </div>
 </main>
 
 <script>
@@ -205,7 +241,7 @@ const V = [
   ["💡","Case popolari e lampioni",16973,"#c9c2b0"]
 ];
 const day = t => t*M/POP/365;
-const eur = (n,d=2) => n.toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d});
+const eur = (n,d=2) => n.toLocaleString("it-IT",{useGrouping:"always",minimumFractionDigits:d,maximumFractionDigits:d});
 const tot = V.reduce((a,v)=>a+v[2],0);
 
 /* 100 monetine: le prime 6 voci con il loro colore, il resto insieme */
@@ -236,7 +272,7 @@ document.getElementById("rc").innerHTML = `
   <div class="row"><span class="n"><span>Messo sul conto (debito)</span></span><span class="v">3,40 €</span></div>
   <div class="bc"></div>
   <div class="c">GRAZIE E ARRIVEDERCI<br>al 2025</div>
-  <div class="src">Numeri veri: spesa e entrate pubbliche 2024 (Eurostat, COFOG), 58,9 milioni di residenti (ISTAT, 1° gennaio 2025). Non è quanto paghi tu: è la spesa totale divisa per tutti.</div>`;
+  <div class="src">Numeri veri: spesa e entrate pubbliche 2024 (<u data-w="eurostat">Eurostat</u>, <u data-w="cofog">COFOG</u>), debito pubblico a fine 2024 (Banca d'Italia), 58,9 milioni di residenti (<u data-w="istat">ISTAT</u>, 1° gennaio 2025). Non è quanto paghi tu: è la spesa totale divisa per tutti.</div>`;
 
 const S = [...document.querySelectorAll(".slide")];
 const bars = document.getElementById("bars");
@@ -262,14 +298,53 @@ function go(i){
   const rc = document.getElementById("rc");
   rc.classList.remove("on-in"); if (i===S.length-1){ void rc.offsetWidth; rc.classList.add("on-in"); S[i].scrollTop = 0; }
 }
+/* Parole spiegate: stesso glossario del Wrapped dello stipendio, una o due frasi per un ragazzo delle medie.
+   Nel testo: <u data-w="chiave">parola</u>. Se aggiungi una parola tecnica nuova, aggiungi qui la sua spiegazione. */
+const GLOSS = {
+  spesa: ["Spesa pubblica", "Tutti i soldi che Stato, Regioni, Comuni e INPS spendono in un anno: pensioni, ospedali, scuole, strade e tutto il resto."],
+  residenti: ["Residenti", "Le persone iscritte all'anagrafe di un Comune, cioè che ci vivono ufficialmente. Contano anche bambini e anziani."],
+  contributi: ["Contributi", "Soldi versati all'INPS per chi lavora. Una parte la paga l'azienda, una parte viene tolta dallo stipendio. Servono per pensioni, malattia e periodi senza lavoro."],
+  irpef: ["IRPEF", "Imposta sul Reddito delle Persone Fisiche: la tassa principale su quello che si guadagna. A chi lavora come dipendente viene tolta ogni mese dalla busta paga."],
+  iva: ["IVA", "Imposta sul Valore Aggiunto: una tassa già compresa nel prezzo di quasi tutto quello che si compra. Il negozio la incassa e la gira allo Stato."],
+  accise: ["Accise", "Una tassa fissa su ogni litro o chilo di certi prodotti: benzina, gasolio, luce, gas, sigarette, alcolici. Resta uguale anche se il prezzo cambia."],
+  irap: ["IRAP", "Una tassa che pagano aziende ed enti sul valore di quello che producono. Serve soprattutto a pagare la sanità delle Regioni."],
+  imu: ["IMU", "La tassa su case, negozi e terreni, che va al Comune. Non si paga sulla casa dove si abita."],
+  ires: ["IRES", "La tassa sui guadagni delle aziende."],
+  assegno: ["Assegno unico", "Soldi che lo Stato dà ogni mese alle famiglie per ogni figlio, di più a chi guadagna meno."],
+  naspi: ["NASpI", "L'assegno mensile che l'INPS paga per un periodo a chi perde il lavoro senza averlo scelto."],
+  interessi: ["Interessi", "Il prezzo di un prestito: chi riceve soldi in prestito restituisce più di quanto ha avuto. La differenza sono gli interessi."],
+  debito: ["Debito pubblico", "Tutti i soldi che lo Stato ha preso in prestito negli anni e non ha ancora restituito. Ogni anno ci si pagano sopra gli interessi."],
+  deficit: ["Deficit", "Quando in un anno si spende più di quanto entra. La differenza si prende in prestito, e il debito cresce."],
+  btp: ["BTP e BOT", "Titoli di Stato: dei «pagherò» che lo Stato vende per farsi prestare soldi. Chi li compra presta soldi allo Stato e li riavrà indietro con gli interessi."],
+  eurostat: ["Eurostat", "L'ufficio statistico dell'Unione europea. Raccoglie i conti di tutti i Paesi con le stesse regole, così si possono confrontare."],
+  cofog: ["COFOG", "Il modo, uguale in tutta Europa, di dividere la spesa pubblica in grandi capitoli: sanità, scuola, difesa, pensioni e così via."],
+  istat: ["ISTAT", "L'Istituto nazionale di statistica: conta gli abitanti e prepara i conti pubblici dell'Italia."]
+};
+const sheet = document.getElementById("sheet");
+document.querySelectorAll("u[data-w]").forEach(u=>{ u.setAttribute("role","button"); u.tabIndex = 0; u.setAttribute("aria-label", `${u.textContent}: cosa vuol dire`); });
+function explain(u){
+  const g = GLOSS[u.dataset.w]; if (!g) return;
+  document.getElementById("sh-t").textContent = g[0]; document.getElementById("sh-p").textContent = g[1];
+  sheet.hidden = false; document.getElementById("sh-ok").focus({preventScroll:true});
+}
+const closeSheet = () => { sheet.hidden = true; };
+// In fase di cattura: toccare una parola apre la spiegazione, toccare altrove chiude il cartoncino. In entrambi i casi la storia non avanza
 document.getElementById("ph").addEventListener("click",e=>{
-  if (e.target.closest("button")) return;
+  const u = e.target.closest("u[data-w]");
+  if (u){ e.stopPropagation(); e.preventDefault(); explain(u); return; }
+  if (!sheet.hidden){ e.stopPropagation(); e.preventDefault(); closeSheet(); }
+}, true);
+document.getElementById("ph").addEventListener("click",e=>{
+  if (e.target.closest("button,a")) return;
   if (cur===S.length-1 && !e.target.closest(".bars")) return;
   const r = e.currentTarget.getBoundingClientRect();
   go(e.clientX - r.left < r.width*.3 ? cur-1 : cur+1);
 });
 document.getElementById("again").addEventListener("click",()=>go(0));
 addEventListener("keydown",e=>{
+  if (!sheet.hidden && (e.key==="Escape" || e.key.startsWith("Arrow") || e.key===" ")){ e.preventDefault(); closeSheet(); return; }
+  const u = e.target.closest && e.target.closest("u[data-w]");
+  if (u && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); explain(u); return; }
   if (e.key==="ArrowRight"||e.key===" ") { e.preventDefault(); go(cur+1); }
   if (e.key==="ArrowLeft") go(cur-1);
 });
