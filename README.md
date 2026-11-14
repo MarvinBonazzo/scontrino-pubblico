@@ -1,6 +1,6 @@
 # Scontrino pubblico
 
-Quanto spende il settore pubblico per ogni persona che vive in Italia, e da dove arrivano i soldi. Mostrato come uno scontrino: ogni riga è una voce di spesa, in fondo c'è il totale.
+Quanti soldi arrivano allo Stato, da dove, e come vengono spesi, divisi per ogni persona che vive in Italia. Mostrato come uno scontrino: ogni riga è una voce di spesa, in fondo c'è il totale.
 
 ### 👉 [Apri lo scontrino](https://marvinbonazzo.github.io/scontrino-pubblico/)
 
@@ -8,7 +8,7 @@ Quanto spende il settore pubblico per ogni persona che vive in Italia, e da dove
 
 Gli stessi numeri dell'Italia raccontati a storie, come lo Spotify Wrapped, pensati per ragazzi delle medie e delle superiori: una schermata, un'idea, e alla fine uno scontrino di carta di un giorno qualunque. Si tocca a destra per andare avanti, a sinistra per tornare indietro.
 
-Progetto gemello: **[Scontrino delle tasse](https://marvinbonazzo.github.io/scontrino-stipendio/)**, che parte dal tuo stipendio e ti mostra quanto vai a pagare di contributi e IRPEF ([codice](https://github.com/MarvinBonazzo/scontrino-stipendio)).
+Progetto gemello: **[Scontrino delle tasse](https://marvinbonazzo.github.io/scontrino-stipendio/)**. Questo scontrino mostra i soldi di tutti; quello parte dal tuo stipendio e ti mostra quanto ci metti tu, in contributi e IRPEF, e in quali voci finisce. Le due pagine usano gli stessi numeri 2024 e si linkano a vicenda ([codice](https://github.com/MarvinBonazzo/scontrino-stipendio)).
 
 ---
 
@@ -16,8 +16,9 @@ Progetto gemello: **[Scontrino delle tasse](https://marvinbonazzo.github.io/scon
 
 1. **Italia intera.** Prende tutta la spesa pubblica di un anno (Stato, Regioni, Comuni e INPS insieme) e la divide per i 58,9 milioni di residenti.
 2. **Lo scontrino.** Mostra quanto va a ogni voce (pensioni, sanità, scuola, interessi sul debito…) per residente, all'anno e al mese.
-3. **Da dove arrivano i soldi.** Sotto le uscite ci sono le entrate dello stesso anno (tasse, contributi, altre entrate). Se le uscite sono più delle entrate, la differenza è coperta con nuovo debito, e lo scontrino lo dice.
-4. **Il tuo Comune.** In fondo un pulsante apre la ricerca tra circa 7.900 Comuni. Per ognuno si vede quanto ha speso per residente negli ultimi 12 mesi, voce per voce, e il confronto con la media dei Comuni italiani.
+3. **Da dove arrivano i soldi.** Sotto le uscite ci sono le entrate dello stesso anno (tasse, contributi, altre entrate). Per ogni entrata, una riga "Come la paghi tu" dice dove la incontri: in busta paga, nel prezzo di quello che compri, nelle bollette.
+4. **Perché i conti non tornano.** Se le uscite sono più delle entrate, lo scontrino spiega come si copre la differenza (deficit e debito, con BTP e BOT), quanto costano gli interessi rispetto alla scuola, e perché i contributi non bastano per le pensioni. Per i Comuni spiega perché non possono fare debito per le spese di ogni giorno.
+5. **Il tuo Comune.** In fondo un pulsante apre la ricerca tra circa 7.900 Comuni. Per ognuno si vede quanto ha speso per residente negli ultimi 12 mesi, voce per voce, e il confronto con la media dei Comuni italiani.
 
 Un esempio: scegli Firenze, e lo scontrino ti dice quanto il Comune ha speso per ogni fiorentino in personale, rifiuti, strade, trasporti, scuole e mense e così via, e quanto è arrivato da IMU, TARI, multe, imposta di soggiorno o dallo Stato.
 
@@ -36,6 +37,8 @@ Il conto è sempre lo stesso, per l'Italia e per i Comuni:
 ```
 spesa di una voce ÷ numero di residenti = euro per residente
 ```
+
+Ogni parola tecnica (IRPEF, accise, deficit, SIOPE…) è sottolineata a puntini: toccandola si apre una spiegazione di una o due frasi.
 
 Tutto avviene nel tuo browser. La pagina non ha account, non salva niente e non ha statistiche o tracciamento: anche la ricerca del Comune si fa sul tuo dispositivo.
 

@@ -2,7 +2,7 @@
 
 Pagina web che mostra, come uno scontrino, quanto spende il settore pubblico per ogni residente e da dove arrivano i soldi. Parte dall'Italia intera; in fondo un pulsante apre una finestra per scegliere uno dei circa 7.900 Comuni.
 
-Progetto gemello dello "Scontrino delle tasse" (stipendio): stesso stile, stessa logica a tre schermate.
+Progetto gemello dello "Scontrino delle tasse" (stipendio, repo `scontrino-stipendio`): stesso stile, stessa logica a tre schermate. Si completano: lo stipendio mostra cosa paghi tu e dove va; questo mostra quanti soldi arrivano in tutto allo Stato, da dove, e come vengono spesi. Le due pagine si linkano a vicenda.
 
 ## File
 
@@ -26,7 +26,8 @@ poi aprire http://localhost:8000
 - `ITALIA`: dati dell'Italia, scritti a mano. Spesa per funzione da Eurostat COFOG (`gov_10a_exp`), entrate da Eurostat (`gov_10a_main`), anno 2024, in milioni di euro (`*M`). Residenti ISTAT al 1° gennaio 2025.
 - `C_OUT` (29 voci) e `C_IN` (17 voci): nomi e descrizioni delle voci dei Comuni. **L'ordine deve essere identico agli indici usati in `scripts/aggiorna_comuni.py`**: se aggiungi, togli o sposti una voce, cambia entrambi.
 - `comuneData(row)`: trasforma una riga del JSON nello stesso formato di `ITALIA`.
-- `render(D)`: disegna risultato, barra, elenchi "Dove vanno" e "Da dove arrivano".
+- `render(D)`: disegna risultato, barra, elenchi "Dove vanno" e "Da dove arrivano". Le entrate con il campo `you` mostrano la riga "Come la paghi tu". `D.facts(c)` riempie il riquadro "Perché i conti non tornano" (Italia) o "Perché entrate e uscite non sono uguali" (Comune).
+- `GLOSS` e `W(chiave, testo)`: parole spiegate. Nel testo `${W("irpef","IRPEF")}` o nel markup `<u data-w="irpef">IRPEF</u>`; toccandole si apre un cartoncino. Ogni parola tecnica nuova va spiegata così, in una o due frasi senza altre parole difficili. Le voci in comune devono restare identiche a quelle dello Scontrino delle tasse.
 - Finestra di scelta: `openModal`, `search`, `loadComuni`. La media dei Comuni italiani (`AVG`) si calcola dal JSON.
 
 Formato di una riga del JSON:
@@ -42,6 +43,8 @@ Formato di una riga del JSON:
   - movimenti finanziari (uscite titoli 0, 3, 5; entrate titoli 0, 5, 7): anticipi di cassa della banca, depositi, titoli. Non sono spesa.
 - Esclusi i Comuni con popolazione 0 o 1 nell'anagrafica SIOPE (dato errato, il conto per residente verrebbe assurdo).
 - La spesa per residente non è "quanto paghi tu": va sempre detto.
+- Debito pubblico (`ITALIA.debt`): Banca d'Italia, fine 2024 (2.966,9 mld, dato rivisto a febbraio 2026).
+- **Stessi numeri dello Scontrino delle tasse**: l'array `SPESA` di `scontrino-stipendio/index.html` copia le 13 voci di spesa di `ITALIA` e i totali delle entrate. Se cambi `ITALIA`, aggiorna anche lì.
 
 ## Aggiornamento mensile dei Comuni
 

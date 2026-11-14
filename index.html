@@ -68,6 +68,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outli
 .hero-num{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,10vw,4.2rem);line-height:1;letter-spacing:-.02em;text-align:center;word-spacing:.04em}
 .lead-explain{font-size:1.08rem;max-width:56ch;text-align:center;margin:10px auto 0}
 .lead-explain b{font-family:var(--mono);font-weight:600}
+.lead-explain a{color:var(--accent)}
 .barwrap{position:relative}
 .bar{display:flex;height:58px;border-radius:6px;overflow:hidden}
 .seg{height:100%;border:0;padding:0;margin:0 -1px 0 0;cursor:pointer;transform-origin:left;animation:grow .7s ease both;transition:opacity .15s,filter .15s;min-width:0}
@@ -127,6 +128,27 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outli
 .notes a{color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* Come lo paghi tu: riga che collega un'entrata allo stipendio o agli acquisti */
+.you{border-left:3px solid var(--o1);padding:4px 0 4px 12px;font-size:.95rem;max-width:58ch}
+.you>span{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.you a,.facts a{color:var(--accent)}
+/* Perché i conti non tornano */
+.facts{max-width:600px;margin:14px auto 0;display:flex;flex-direction:column;gap:16px}
+.fact{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start}
+.fact .n{font-family:var(--display);font-weight:800;font-size:1.5rem;line-height:1;color:var(--o1);text-align:center;padding-top:2px}
+.fact h3{text-align:left;margin-bottom:4px}
+.fact p{color:var(--muted);font-size:.98rem}
+.fact p b{color:var(--ink);font-family:var(--mono);font-weight:600;word-spacing:-.3em}
+.link{display:inline-block;text-decoration:none}
+
+/* Parole spiegate: si toccano e si apre un cartoncino in basso */
+u[data-w]{text-decoration:underline dotted;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1.5px;cursor:help;border-radius:3px}
+u[data-w]:hover,u[data-w]:focus-visible{color:var(--accent);text-decoration-color:var(--accent);outline:none}
+.gl{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:max(16px, env(safe-area-inset-bottom, 0px));width:min(480px, calc(100% - 32px));background:var(--ink);color:var(--paper);border-radius:12px;padding:16px 18px 14px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:grid;gap:6px;text-align:left}
+.gl b{font-family:var(--display);font-size:1.15rem}
+.gl p{font-size:1rem;line-height:1.45}
+.gl button{justify-self:end;font-family:var(--body);font-weight:600;background:var(--paper);color:var(--ink);border:0;border-radius:999px;padding:7px 16px;cursor:pointer}
+
 /* Scelta del Comune */
 .more{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
 .more .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
@@ -156,8 +178,8 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outli
 <div class="wrap">
 
   <section class="screen intro" id="s-intro">
-    <h1>Dove vanno i soldi pubblici?</h1>
-    <p class="lede">Tutta la spesa pubblica italiana di un anno, cioè Stato, Regioni, Comuni e INPS insieme, divisa per ogni persona che vive in Italia.</p>
+    <h1>Quanti soldi arrivano allo Stato, e dove vanno?</h1>
+    <p class="lede">Tutti i soldi pubblici di un anno, cioè di Stato, Regioni, Comuni e INPS insieme: quanto entra, da dove, e come viene speso. Diviso per ogni persona che vive in Italia.</p>
     <div class="stub"><span>ITALIA</span><span>anno 2024</span><span>58,9 milioni di residenti</span></div>
     <button class="cta" id="go" type="button">Stampa lo scontrino</button>
   </section>
@@ -210,6 +232,11 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outli
       <div class="list" id="in"></div>
     </div>
 
+    <div class="panel">
+      <h2 id="g-title"></h2>
+      <div class="facts" id="facts"></div>
+    </div>
+
     <div class="notes" id="notes"></div>
 
     <div class="panel more">
@@ -220,8 +247,16 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outli
         <button class="ghost" id="toItaly" type="button" hidden>Torna all'Italia</button>
       </div>
     </div>
+
+    <div class="panel more">
+      <h2>E tu, quanto ci metti?</h2>
+      <p class="hint">Questo scontrino mostra i soldi di tutti. Lo Scontrino delle tasse parte dal tuo stipendio: quanto dai ogni mese in <u data-w="contributi">contributi</u> e <u data-w="irpef">IRPEF</u>, e in quali di queste voci finiscono.</p>
+      <a class="ghost link" href="https://marvinbonazzo.github.io/scontrino-stipendio/">Calcola dal tuo stipendio →</a>
+    </div>
   </section>
 </div>
+
+<div class="gl" id="gl" hidden role="dialog" aria-live="polite" aria-labelledby="gl-t"><b id="gl-t"></b><p id="gl-p"></p><button type="button" id="gl-x">Ho capito</button></div>
 
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mt">
   <div class="sheet">
@@ -235,31 +270,103 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outli
 const M = 1e6;
 const PAL = ["--b1","--o1","--b2","--o2","--b3","--o3"];
 const $ = id => document.getElementById(id);
-const fmt = n => Math.round(n).toLocaleString("it-IT") + " €";
+const fmt = n => Math.round(n).toLocaleString("it-IT",{useGrouping:"always"}) + " €";
 const big = n => n >= 1e9
-  ? (n/1e9).toLocaleString("it-IT",{maximumFractionDigits:n>=1e11?0:1}) + " mld"
+  ? (n/1e9).toLocaleString("it-IT",{useGrouping:"always",maximumFractionDigits:n>=1e11?0:1}) + " mld"
   : (n/1e6).toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1}) + " mln";
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const STIPENDIO = "https://marvinbonazzo.github.io/scontrino-stipendio/";
 
-/* Italia: spesa per funzione 2024 (Eurostat COFOG) ed entrate 2024 (Eurostat), in euro */
+/* Parole spiegate. Chiave → [titolo, spiegazione in una o due frasi, senza altre parole difficili].
+   Stesso elenco dello Scontrino delle tasse: se cambi una spiegazione, cambiala in tutti e due. */
+const GLOSS = {
+  inps:["INPS","L'ente pubblico che incassa i contributi di chi lavora e paga pensioni, malattia, maternità e gli aiuti a chi perde il lavoro."],
+  contributi:["Contributi","Soldi versati all'INPS per ogni persona che lavora: una parte la paga l'azienda, una parte viene tolta dallo stipendio. Pagano le pensioni di oggi."],
+  irpef:["IRPEF","Imposta sul reddito delle persone: la tassa su quello che guadagni lavorando o con la pensione. A un dipendente viene tolta ogni mese dalla busta paga."],
+  iva:["IVA","Imposta sul valore aggiunto: una tassa già compresa nel prezzo di quasi tutto quello che compri. In una felpa da 30 € con IVA al 22%, 5,41 € vanno allo Stato."],
+  accise:["Accise","Una tassa fissa su ogni litro o chilo di certi prodotti: benzina, gasolio, luce, gas, sigarette, alcolici. Non è una percentuale: resta uguale anche se il prezzo cambia."],
+  ires:["IRES","Imposta sul reddito delle società: la tassa sugli utili, cioè sui guadagni, delle aziende."],
+  irap:["IRAP","Imposta regionale sulle attività produttive: la pagano aziende ed enti sul valore di quello che producono. Serve soprattutto a pagare la sanità delle Regioni."],
+  imu:["IMU","Imposta su case, negozi e terreni, che va al Comune. Non si paga sulla casa dove si abita, tranne le case di lusso."],
+  tari:["TARI","La tassa sui rifiuti. La paga chi abita o lavora in un edificio, e serve a pagare raccolta e smaltimento."],
+  addizionale:["Addizionale IRPEF","Un piccolo pezzo di IRPEF in più che va alla Regione e al Comune dove vivi. La percentuale la decidono loro, entro i limiti della legge."],
+  lordo:["Lordo","Lo stipendio prima delle trattenute. È la cifra del contratto, ma non è quella che arriva sul conto."],
+  netto:["Netto","Quello che arriva davvero sul conto, dopo aver tolto contributi e tasse."],
+  deficit:["Deficit","Quando in un anno si spende più di quanto entra. La differenza si copre con nuovi prestiti, che fanno crescere il debito."],
+  avanzo:["Avanzo","Quando in un anno entra più di quanto si spende. È il contrario del deficit."],
+  debito:["Debito pubblico","Tutti i soldi che lo Stato ha preso in prestito negli anni e non ha ancora restituito. Ogni anno ci si pagano sopra gli interessi."],
+  btp:["BTP e BOT","Titoli di Stato: dei «pagherò» che lo Stato vende per farsi prestare soldi. Chi li compra presta soldi allo Stato e li riavrà indietro con gli interessi."],
+  interessi:["Interessi","Il prezzo di un prestito. Chi riceve soldi in prestito restituisce più di quanto ha avuto: la differenza sono gli interessi."],
+  superstiti:["Pensione ai superstiti","Quando muore una persona che prendeva la pensione, una parte passa al marito o alla moglie, o ai figli. Si chiama anche reversibilità."],
+  naspi:["NASpI","L'assegno mensile che l'INPS paga per un periodo a chi perde il lavoro senza averlo scelto."],
+  cassaint:["Cassa integrazione","Quando un'azienda è in crisi e riduce il lavoro, l'INPS paga ai dipendenti una parte dello stipendio."],
+  ticket:["Ticket","La parte del costo di una visita o di un esame che paghi tu. Il resto lo paga il Servizio sanitario."],
+  dividendi:["Dividendi","La parte di guadagni che un'azienda dà ai suoi proprietari. Lo Stato e i Comuni ne ricevono dalle società che possiedono, come Eni, Enel o le aziende dei trasporti locali."],
+  mutuo:["Mutuo","Un prestito lungo, da restituire a rate in molti anni, con gli interessi."],
+  cdp:["Cassa Depositi e Prestiti","Una società controllata dallo Stato che usa i risparmi dei libretti postali per prestare soldi a Comuni e Regioni."],
+  residenti:["Residenti","Le persone iscritte all'anagrafe di un Comune, cioè che ci vivono ufficialmente. Contano anche bambini e anziani."],
+  eurostat:["Eurostat","L'ufficio statistico dell'Unione europea. Raccoglie i conti pubblici di tutti i Paesi UE con le stesse regole, così si possono confrontare."],
+  istat:["ISTAT","L'Istituto nazionale di statistica: conta gli abitanti, misura i prezzi e prepara i conti pubblici dell'Italia."],
+  cofog:["COFOG","Il modo, uguale in tutta Europa, di dividere la spesa pubblica in grandi capitoli: sanità, scuola, difesa, pensioni e così via."],
+  siope:["SIOPE","Il sistema che registra ogni pagamento e ogni incasso degli enti pubblici, mentre passa dalla loro banca. Lo gestiscono la Ragioneria dello Stato e la Banca d'Italia."],
+  partitegiro:["Partite di giro","Soldi che passano dal Comune senza essere suoi. Per esempio le tasse trattenute ai dipendenti comunali: il Comune le incassa e le gira subito allo Stato."]
+};
+const W = (k, t) => `<u data-w="${k}">${t || GLOSS[k][0]}</u>`;
+function openGloss(u){
+  const g = GLOSS[u.dataset.w]; if (!g) return;
+  $("gl-t").textContent = g[0]; $("gl-p").textContent = g[1]; $("gl").hidden = false;
+}
+const closeGloss = () => { $("gl").hidden = true; };
+$("gl-x").addEventListener("click", closeGloss);
+// In fase di cattura: la parola dentro un elenco a fisarmonica non deve aprirlo o chiuderlo
+document.addEventListener("click", e=>{
+  const u = e.target.closest("u[data-w]");
+  if (u){ e.preventDefault(); e.stopPropagation(); openGloss(u); }
+  else if (!e.target.closest("#gl")) closeGloss();
+}, true);
+document.addEventListener("keydown", e=>{
+  const u = e.target.closest && e.target.closest("u[data-w]");
+  if (u && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); openGloss(u); }
+  if (e.key==="Escape") closeGloss();
+});
+// Ogni parola spiegata, anche quelle create dopo, si raggiunge con il tasto Tab
+const prepW = () => document.querySelectorAll("u[data-w]:not([tabindex])").forEach(u=>{ u.tabIndex = 0; u.setAttribute("role","button"); });
+prepW();
+new MutationObserver(prepW).observe(document.body, {childList:true, subtree:true});
+
+/* Italia: spesa per funzione 2024 (Eurostat COFOG) ed entrate 2024 (Eurostat), in euro. Debito: Banca d'Italia, fine 2024 */
 const ITALIA = {
-  name:"Italia", where:"Italia · anno 2024", pop:58934177,
+  name:"Italia", where:"Italia · anno 2024", pop:58934177, debt:2966900*M,
   title:"Quanto ha speso il settore pubblico per ogni residente",
-  explain:t=>`Nel 2024 Stato, Regioni, Comuni e INPS hanno speso <b>${fmt(t)}</b> per ogni persona che vive in Italia. Non è quanto paghi tu: è la spesa pubblica totale divisa per i residenti.`,
+  explain:t=>`Nel 2024 Stato, Regioni, Comuni e ${W("inps","INPS")} hanno speso <b>${fmt(t)}</b> per ogni persona che vive in Italia, neonati e pensionati compresi. Non è quanto paghi tu: è la spesa pubblica totale divisa per i ${W("residenti","residenti")}. Quanto ci metti tu lo calcoli con lo <a href="${STIPENDIO}">Scontrino delle tasse</a>.`,
   s1l:"spesi in tutto", s3k:"Pensioni", s3l:"vanno alle pensioni",
   hOut:"Tocca una voce per vedere da cosa è fatta.",
-  hIn:"Le entrate pubbliche dello stesso anno, divise per residente.",
+  hIn:"Le entrate pubbliche dello stesso anno, divise per residente. Tocca una voce per vedere come la paghi tu.",
   gap:"Differenza, coperta con nuovo debito",
   surplus:"Avanzo",
   steps:["Leggo i conti pubblici Eurostat 2024","Sommo Stato, Regioni, Comuni e INPS","Divido la spesa per funzione","Divido per 58,9 milioni di residenti"],
-  why:"Perché il 2024 e non il 2025? È l'ultimo anno con la spesa divisa per voce. Eurostat deve raccogliere e controllare i conti di migliaia di enti pubblici, e li pubblica più di un anno dopo: il 2025 uscirà a inizio 2027.",
-  notes:`<p>Fonte: Eurostat, spesa delle amministrazioni pubbliche per funzione (COFOG) e conti delle entrate, anno 2024, l'ultimo con il dettaglio per voce. Residenti: ISTAT al 1° gennaio 2025.</p>`,
+  why:`Perché il 2024 e non il 2025? È l'ultimo anno con la spesa divisa per voce. ${W("eurostat","Eurostat")} deve raccogliere e controllare i conti di migliaia di enti pubblici, e li pubblica più di un anno dopo: il 2025 uscirà a inizio 2027.`,
+  notes:`<p>Fonte: ${W("eurostat","Eurostat")}, spesa delle amministrazioni pubbliche per funzione (${W("cofog","COFOG")}) e conti delle entrate, anno 2024, l'ultimo con il dettaglio per voce. Debito pubblico: Banca d'Italia, fine 2024. Residenti: ${W("istat","ISTAT")} al 1° gennaio 2025.</p>`,
+  gTitle:"Perché i conti non tornano",
+  facts:c=>{
+    const get = k => (c.out.find(x=>x.k===k) || c.inn.find(x=>x.k===k)).t;
+    return [
+      ["1","Si spende più di quanto entra",
+        `Nel 2024 sono usciti <b>${big(c.totEur)}</b> e ne sono entrati <b>${big(c.inEur)}</b>. Per ogni 100 € incassati se ne sono spesi ${Math.round(c.totEur/c.inEur*100)}. Mancano <b>${big(c.totEur-c.inEur)}</b>, cioè <b>${fmt(c.diff)}</b> per residente: è il ${W("deficit","deficit")}.`],
+      ["2","La differenza si prende in prestito",
+        `Lo Stato vende ${W("btp","BTP e BOT")}: chi li compra, cioè famiglie, banche e fondi di tutto il mondo, gli presta soldi e li riavrà indietro con gli ${W("interessi","interessi")}. È come pagare con la carta di credito. Anno dopo anno i prestiti si sommano: a fine 2024 il ${W("debito","debito pubblico")} era <b>${big(ITALIA.debt)}</b>, circa <b>${fmt(ITALIA.debt/c.pop)}</b> per residente.`],
+      ["3","Gli interessi costano quasi quanto la scuola",
+        `Solo di interessi sul debito nel 2024 si sono pagati <b>${big(get("Interessi sul debito"))}</b>. Per tutta l'istruzione, dall'asilo all'università, <b>${big(get("Istruzione"))}</b>. Gli interessi vanno pagati ogni anno, come la rata di un prestito.`],
+      ["4","I contributi non bastano per le pensioni",
+        `Aziende e lavoratori hanno versato <b>${big(get("Contributi sociali"))}</b> di ${W("contributi","contributi")}. Le sole pensioni sono costate <b>${big(get("Pensioni"))}</b>. Le pensioni di oggi si pagano con i contributi di chi lavora oggi: quando i pensionati sono tanti rispetto a chi lavora, il resto arriva dalle altre tasse. Anche chi non lavora ancora ci mette qualcosa, con l'IVA di ogni acquisto.`]
+    ];
+  },
   out:[
-    {k:"Pensioni", d:"Le pensioni di vecchiaia e quelle ai superstiti, cioè la reversibilità a vedove, vedovi e orfani.", t:359572*M, i:[["Vecchiaia",306359*M],["Superstiti",53213*M]]},
+    {k:"Pensioni", d:`Le pensioni di vecchiaia, cioè di chi ha smesso di lavorare per età, e quelle ai ${W("superstiti","superstiti")}: vedove, vedovi e orfani di un pensionato.`, t:359572*M, i:[["Vecchiaia",306359*M],["Superstiti",53213*M]]},
     {k:"Sanità", d:"Ospedali, medici di base, visite specialistiche, farmaci e prevenzione.", t:146075*M, i:[["Ospedali",60251*M],["Medici di base e visite",53805*M],["Farmaci e apparecchi",20337*M],["Prevenzione",6748*M],["Ricerca e altro",4934*M]]},
-    {k:"Altra protezione sociale", d:"Aiuti a chi è malato o invalido, alle famiglie con figli, a chi perde il lavoro e a chi è in povertà.", t:108563*M, i:[["Invalidità e malattia",37782*M],["Famiglie e figli",32266*M],["Disoccupazione",20257*M],["Povertà",14982*M],["Casa e altro",3276*M]]},
+    {k:"Altra protezione sociale", d:`Aiuti a chi è malato o invalido, alle famiglie con figli, a chi perde il lavoro (come la ${W("naspi","NASpI")} e la ${W("cassaint","cassa integrazione")}) e a chi è in povertà.`, t:108563*M, i:[["Invalidità e malattia",37782*M],["Famiglie e figli",32266*M],["Disoccupazione",20257*M],["Povertà",14982*M],["Casa e altro",3276*M]]},
     {k:"Istruzione", d:"Scuole dall'infanzia alle superiori, università e servizi come mense e trasporti scolastici.", t:89180*M, i:[["Scuola secondaria",39545*M],["Infanzia e primaria",30977*M],["Università",9144*M],["Mense e servizi",4869*M],["Altro",4645*M]]},
-    {k:"Interessi sul debito", d:"Quello che si paga ogni anno a chi ha prestato soldi allo Stato comprando titoli come BTP e BOT.", t:87789*M, i:[["Interessi sul debito pubblico",87789*M]]},
+    {k:"Interessi sul debito", d:`Quello che si paga ogni anno a chi ha prestato soldi allo Stato comprando ${W("btp","titoli come BTP e BOT")}. È il prezzo del ${W("debito","debito")} accumulato negli anni.`, t:87789*M, i:[["Interessi sul debito pubblico",87789*M]]},
     {k:"Funzionamento dello Stato", d:"Parlamento, governo, ministeri, riscossione delle tasse, rapporti con l'estero e ricerca di base.", t:82625*M, i:[["Governo, fisco ed esteri",43344*M],["Servizi generali",20816*M],["Ricerca di base",12757*M],["Aiuti ad altri Paesi",1488*M],["Altro",4220*M]]},
     {k:"Aiuti all'economia", d:"Incentivi alle imprese, politiche del lavoro, energia, industria e agricoltura.", t:60557*M, i:[["Lavoro e commercio",18047*M],["Energia",13272*M],["Industria e costruzioni",11750*M],["Ricerca",6137*M],["Agricoltura",5600*M],["Altro",5751*M]]},
     {k:"Trasporti", d:"Strade, autostrade, ferrovie, trasporto pubblico locale, porti e aeroporti.", t:51824*M, i:[["Trasporti",51824*M]]},
@@ -270,22 +377,29 @@ const ITALIA = {
     {k:"Casa e territorio", d:"Case popolari, sviluppo urbano, illuminazione delle strade e acquedotti.", t:16973*M, i:[["Edilizia pubblica",8334*M],["Sviluppo urbano",4444*M],["Illuminazione pubblica",2359*M],["Acqua",1713*M],["Altro",122*M]]}
   ],
   inn:[
-    {k:"Contributi sociali", d:"I contributi per pensioni e indennità, versati all'INPS da aziende e lavoratori.", t:278140*M, i:[["Pagati dalle aziende",189097*M],["Pagati dai lavoratori",84744*M],["Altri",4299*M]]},
-    {k:"IRPEF", d:"Le imposte sul reddito delle persone: dipendenti, pensionati, autonomi.", t:273638*M, i:[["Imposte sui redditi delle persone",273638*M]]},
-    {k:"IVA", d:"L'imposta inclusa nel prezzo di quasi tutto quello che compri.", t:145187*M, i:[["IVA",145187*M]]},
-    {k:"Accise e altre imposte sui consumi", d:"Accise su carburanti, energia, tabacchi e alcol, imposta di bollo e altre imposte sui prodotti.", t:99042*M, i:[["Imposte sui prodotti, IVA esclusa",99042*M]]},
-    {k:"IRAP, IMU e simili", d:"Imposte legate alla produzione e agli immobili, come IRAP e IMU.", t:65371*M, i:[["Altre imposte sulla produzione",65371*M]]},
-    {k:"IRES", d:"L'imposta sugli utili delle società.", t:58665*M, i:[["Imposte sugli utili delle imprese",58665*M]]},
-    {k:"Servizi pagati dai cittadini", d:"Ticket sanitari, rette, tariffe e altri servizi che le amministrazioni vendono.", t:51753*M, i:[["Vendita di servizi",51753*M]]},
+    {k:"Contributi sociali", d:`I ${W("contributi","contributi")} per pensioni, malattia, maternità e disoccupazione, versati all'${W("inps","INPS")} da aziende e lavoratori.`, t:278140*M, i:[["Pagati dalle aziende",189097*M],["Pagati dai lavoratori",84744*M],["Altri",4299*M]],
+      you:`Dal tuo stipendio. In media l'azienda versa circa il 30% del tuo ${W("lordo","lordo")} in più, sopra lo stipendio, e il 9,19% ti viene tolto dalla busta paga. <a href="${STIPENDIO}">Calcola i tuoi</a>`},
+    {k:"IRPEF", d:`L'${W("irpef","imposta sul reddito")} delle persone: dipendenti, pensionati, lavoratori autonomi. Comprende le ${W("addizionale","addizionali")} di Regioni e Comuni.`, t:273638*M, i:[["Imposte sui redditi delle persone",273638*M]],
+      you:`Se sei dipendente, l'azienda la toglie ogni mese dalla busta paga e la versa per te. Più guadagni, più alta è la percentuale. <a href="${STIPENDIO}">Calcola la tua</a>`},
+    {k:"IVA", d:`L'${W("iva","IVA")}, inclusa nel prezzo di quasi tutto quello che compri.`, t:145187*M, i:[["IVA",145187*M]],
+      you:"Ogni volta che paghi qualcosa, a qualsiasi età. In una felpa da 30 € con IVA al 22% ci sono 5,41 € di IVA."},
+    {k:"Accise e altre imposte sui consumi", d:`${W("accise","Accise")} su carburanti, luce, gas, tabacchi e alcolici, imposta di bollo e altre imposte sui prodotti.`, t:99042*M, i:[["Imposte sui prodotti, IVA esclusa",99042*M]],
+      you:"Nel prezzo del pieno di benzina, nella bolletta di luce e gas, nel pacchetto di sigarette. Non sono scritte a parte: sono già dentro il prezzo."},
+    {k:"IRAP, IMU e simili", d:`Imposte legate alla produzione e agli immobili, come l'${W("irap","IRAP")} e l'${W("imu","IMU")}.`, t:65371*M, i:[["Altre imposte sulla produzione",65371*M]],
+      you:"L'IRAP la pagano le aziende. L'IMU la paga al Comune chi ha una seconda casa, un negozio o un terreno."},
+    {k:"IRES", d:`L'${W("ires","IRES")}, l'imposta sugli utili delle società.`, t:58665*M, i:[["Imposte sugli utili delle imprese",58665*M]],
+      you:"La pagano le società sui guadagni dell'anno, non le persone."},
+    {k:"Servizi pagati dai cittadini", d:`${W("ticket","Ticket")} sanitari, rette, tariffe e altri servizi che le amministrazioni vendono.`, t:51753*M, i:[["Vendita di servizi",51753*M]],
+      you:"Quando paghi il ticket di una visita, la retta dell'asilo nido, l'ingresso a un museo pubblico."},
     {k:"Trasferimenti e fondi UE", d:"Soldi in arrivo da altri soggetti, compresi i fondi dell'Unione europea.", t:34434*M, i:[["Dall'Unione europea",9451*M],["Altri trasferimenti",24983*M]]},
-    {k:"Rendite e interessi", d:"Interessi incassati, affitti di beni pubblici e dividendi delle società partecipate.", t:16729*M, i:[["Interessi",5944*M],["Affitti",5117*M],["Dividendi",4315*M],["Altro",1353*M]]},
-    {k:"Altre imposte", d:"Imposte sul patrimonio, successioni e donazioni, altre imposte sul reddito.", t:13066*M, i:[["Altre imposte",13066*M]]}
+    {k:"Rendite e interessi", d:`Interessi incassati, affitti di beni pubblici e ${W("dividendi","dividendi")} delle società di proprietà pubblica.`, t:16729*M, i:[["Interessi",5944*M],["Affitti",5117*M],["Dividendi",4315*M],["Altro",1353*M]]},
+    {k:"Altre imposte", d:"Imposte sul patrimonio, su eredità e donazioni, altre imposte sul reddito.", t:13066*M, i:[["Altre imposte",13066*M]]}
   ]
 };
 
 /* Comuni: SIOPE, ultimi 12 mesi chiusi (ottobre 2025 – settembre 2026). Ordine delle voci uguale al file comuni-12mesi.json */
 const C_OUT = [
-  ["Personale","Gli stipendi dei dipendenti del Comune, con i contributi che il Comune versa all'INPS sopra lo stipendio."],
+  ["Personale",`Gli stipendi dei dipendenti del Comune, con i ${W("contributi","contributi")} che il Comune versa all'INPS sopra lo stipendio.`],
   ["Rifiuti","Raccolta, pulizia delle strade e smaltimento dei rifiuti."],
   ["Strade","Lavori su strade, piazze e infrastrutture."],
   ["Trasporti","Trasporto pubblico, scolastico e per disabili, acquisto di mezzi."],
@@ -295,11 +409,11 @@ const C_OUT = [
   ["Case ed edifici","Case popolari, edifici comunali e cimiteri."],
   ["Luce e utenze","Illuminazione delle strade e bollette degli edifici comunali."],
   ["Scuole e mense","Edifici scolastici, mense e servizi per le scuole."],
-  ["Debito","Rate dei mutui presi negli anni passati, con gli interessi."],
+  ["Debito",`Rate dei ${W("mutuo","mutui")} presi negli anni passati, con gli ${W("interessi","interessi")}.`],
   ["Contributi ad altri enti","Soldi dati a imprese, associazioni, Regione e altri enti."],
   ["Manutenzioni","Riparazioni ordinarie di edifici, impianti e mezzi."],
   ["Informatica","Software, sistemi, licenze e computer degli uffici."],
-  ["Tasse pagate dal Comune","Anche il Comune paga imposte: soprattutto l'IRAP sugli stipendi e l'IVA."],
+  ["Tasse pagate dal Comune",`Anche il Comune paga imposte: soprattutto l'${W("irap","IRAP")} sugli stipendi e l'${W("iva","IVA")}.`],
   ["Politica","Indennità di sindaco e assessori, gettoni dei consiglieri, revisori dei conti."],
   ["Altri servizi in appalto","Servizi pubblici affidati a ditte esterne e non elencati nelle altre voci, come parcheggi a pagamento, servizio idrico e canili."],
   ["Consulenze e professionisti","Architetti, ingegneri, consulenti e altri professionisti esterni, compresi i progetti delle opere pubbliche e il personale interinale."],
@@ -318,16 +432,16 @@ const C_OUT = [
 const C_IN = [
   ["Stato","Contributi e trasferimenti dai ministeri e dai fondi nazionali, cioè dalle tasse di tutti gli italiani."],
   ["Servizi e beni del Comune","Suolo pubblico, affitti di immobili comunali, permessi di costruire, musei, mense, nidi."],
-  ["IMU","L'imposta sugli immobili. Non si paga sulla prima casa."],
+  ["IMU",`L'${W("imu","IMU")}, imposta su case, negozi e terreni. Non si paga sulla casa dove si abita.`],
   ["Regione e altri enti locali","Contributi della Regione, della Provincia, di altri Comuni e consorzi per opere e servizi."],
-  ["TARI","La tassa sui rifiuti, pagata da famiglie e attività."],
+  ["TARI",`La ${W("tari","TARI")}, tassa sui rifiuti, pagata da famiglie e attività.`],
   ["Imposta di soggiorno","La pagano i turisti per ogni notte passata in città."],
   ["Multe","Soprattutto multe per le infrazioni stradali."],
-  ["Addizionale IRPEF","La parte di IRPEF che va al Comune, trattenuta in busta paga ai residenti."],
+  ["Addizionale IRPEF",`L'${W("addizionale","addizionale")}: la parte di ${W("irpef","IRPEF")} che va al Comune, trattenuta in busta paga o sulla pensione a chi ci abita. Lo Scontrino delle tasse non la conta, perché cambia da Comune a Comune: è qui.`],
   ["Altre entrate varie","Voci piccole: condoni edilizi, indennizzi delle assicurazioni, trasferimenti da INPS e famiglie."],
-  ["Nuovi prestiti","Mutui presi in banca o dalla Cassa Depositi e Prestiti, di solito per pagare opere pubbliche. Andranno restituiti negli anni."],
+  ["Nuovi prestiti",`${W("mutuo","Mutui")} presi in banca o dalla ${W("cdp","Cassa Depositi e Prestiti")}, per pagare opere pubbliche. Andranno restituiti negli anni.`],
   ["Vendita di beni","Case, terreni e altri beni del Comune venduti."],
-  ["Interessi e dividendi","Utili delle società partecipate dal Comune e interessi sui conti."],
+  ["Interessi e dividendi",`${W("dividendi","Dividendi")} delle società di cui il Comune è socio e interessi sui conti.`],
   ["Rimborsi ricevuti","Soldi restituiti al Comune, per esempio per personale prestato ad altri enti o IVA a credito."],
   ["Fondi europei","Contributi dell'Unione europea per progetti e opere."],
   ["Altre imposte","Imposte minori o arretrate, come la vecchia ICI recuperata con i controlli e i proventi dei casinò."],
@@ -343,16 +457,30 @@ function comuneData(r){
     name:nice, where:`Comune di ${nice} · ${p} · ottobre 2025 – settembre 2026`, pop, comune:true,
     title:"Quanto ha speso il Comune per ogni residente",
     why:"Perché questi mesi? Sono gli ultimi 12 mesi chiusi. SIOPE pubblica i pagamenti dei Comuni ogni mese, e ottobre 2026 non è ancora finito.",
-    explain:t=>`Negli ultimi 12 mesi il Comune di ${nice} ha speso <b>${fmt(t)}</b> per ogni persona che ci vive. Non è quanto paghi tu: è la spesa del Comune divisa per i residenti.`,
+    explain:t=>`Negli ultimi 12 mesi il Comune di ${nice} ha speso <b>${fmt(t)}</b> per ogni persona che ci vive. Non è quanto paghi tu: è la spesa del Comune divisa per i ${W("residenti","residenti")}. Ed è solo una parte: scuola, ospedali e pensioni li pagano Stato, Regione e INPS.`,
     s1l:"spesi in tutto", s3k:"Personale", s3l:"vanno agli stipendi del personale",
     hOut:"Tocca una voce per vedere il totale e la media dei Comuni italiani.",
     hIn:"Le entrate del Comune nello stesso anno, divise per residente.",
     gap:"Differenza, coperta con la cassa degli anni passati",
     surplus:"Avanzo, rimasto in cassa",
     steps:["Leggo gli ultimi 12 mesi di pagamenti SIOPE",`Filtro il Comune di ${nice}`,"Tolgo soldi di passaggio e movimenti finanziari",`Divido per ${pop.toLocaleString("it-IT")} residenti`],
-    notes:`<p>Dallo scontrino sono esclusi <b class="mono">${fmt(go/pop)}</b> per residente di soldi di passaggio: ritenute e IVA che il Comune incassa e gira subito allo Stato.</p>
+    gTitle:"Perché entrate e uscite non sono uguali",
+    facts:c=>[
+      ["1","Un Comune non può fare debito per le spese di ogni giorno",
+        `La legge permette ai Comuni di chiedere prestiti (${W("mutuo","mutui")}) solo per costruire o rifare opere: scuole, strade, edifici. Stipendi, rifiuti e bollette vanno pagati con le entrate.`],
+      c.diff > 0
+        ? ["2","In questi 12 mesi ha pagato di più",
+            `Il Comune ha pagato <b>${fmt(c.diff)}</b> per residente più di quanto ha incassato. Ha usato soldi entrati negli anni prima e rimasti in cassa, spesso già destinati a lavori.`]
+        : ["2","In questi 12 mesi ha incassato di più",
+            `Il Comune ha incassato <b>${fmt(-c.diff)}</b> per residente più di quanto ha pagato. Restano in cassa: spesso servono per lavori già decisi ma non ancora pagati.`],
+      ["3","Si contano i pagamenti veri",
+        `Questi sono i soldi passati davvero dalla banca del Comune. Una spesa decisa a dicembre può essere pagata a marzo: per questo un periodo può sembrare in rosso e quello dopo in attivo.`],
+      ["4","Dove entra il tuo stipendio",
+        `Il grosso delle tasse va allo Stato, che poi ne manda una parte ai Comuni: è la voce «Stato» tra le entrate. Se vivi qui, al Comune va direttamente solo una piccola parte della tua IRPEF: l'${W("addizionale","addizionale comunale")}, se il Comune l'ha decisa.`]
+    ],
+    notes:`<p>Dallo scontrino sono esclusi <b class="mono">${fmt(go/pop)}</b> per residente di ${W("partitegiro","soldi di passaggio")}: ritenute e IVA che il Comune incassa e gira subito allo Stato.</p>
       <p>Sono esclusi anche <b class="mono">${fmt(fo/pop)}</b> di movimenti finanziari: anticipi di cassa restituiti alla banca, soldi spostati su conti deposito o in titoli. Non sono spesa: è come spostare soldi dal conto corrente al libretto di risparmio.</p>
-      <p>Fonte: pagamenti e incassi di cassa <a href="https://www.siope.it" target="_blank" rel="noopener">SIOPE</a> (Ragioneria Generale dello Stato e Banca d'Italia), da ottobre 2025 a settembre 2026. Raggruppamento delle voci a cura di questo scontrino. Residenti secondo l'anagrafica SIOPE.</p>`,
+      <p>Fonte: pagamenti e incassi di cassa ${W("siope","SIOPE")} (<a href="https://www.siope.it" target="_blank" rel="noopener">siope.it</a>, Ragioneria Generale dello Stato e Banca d'Italia), da ottobre 2025 a settembre 2026. Raggruppamento delle voci a cura di questo scontrino. Residenti secondo l'anagrafica SIOPE.</p>`,
     out:C_OUT.map(([k,d],j)=>({k,d,t:o[j],avg:AVG.o[j]})).filter(x=>x.t>0),
     inn:C_IN.map(([k,d],j)=>({k,d,t:i[j],avg:AVG.i[j]})).filter(x=>x.t>0)
   };
@@ -394,7 +522,8 @@ function list(el, data, per, totPer, colorOf, pop){
     const col = colorOf(x,i);
     let body = `<p class="sdesc">${x.d}</p>`;
     if (x.i) body += `<div class="items"><span>In tutto ${big(x.t)} · da cosa è fatta</span>${x.i.map(([n,v])=>`<div class="it"><span>${n}</span><b>${big(v)}</b><small>${fmt(v/pop)}</small></div>`).join("")}</div>`;
-    else body += `<p class="cmp">In tutto <b>${big(x.t)}</b> · media dei Comuni italiani <b>${fmt(x.avg)}</b> per residente</p>`;
+    if (x.you) body += `<p class="you"><span>Come la paghi tu</span>${x.you}</p>`;
+    if (!x.i) body += `<p class="cmp">In tutto <b>${big(x.t)}</b> · media dei Comuni italiani <b>${fmt(x.avg)}</b> per residente</p>`;
     return `<details class="voce"><summary><span class="stripe" style="background:var(${col})"></span>
       <span class="ttl"><span>${x.k}</span><span class="mbar"><span style="width:${per[i]/max*100}%;background:var(${col})"></span></span></span>
       <span class="pc">${pc}%</span><span class="amt">${fmt(per[i])}</span><span class="chev" aria-hidden="true"></span></summary>
@@ -419,7 +548,7 @@ function render(D){
   $("r-title").textContent = D.title;
   $("r-hero").textContent = fmt(totOut);
   $("r-explain").innerHTML = D.explain(totOut);
-  $("r-why").textContent = D.why;
+  $("r-why").innerHTML = D.why;
   $("s-1").textContent = big(totEur); $("s-1l").textContent = D.s1l;
   $("s-2").textContent = "≈ " + fmt(Math.round(totOut/12/10)*10);
   const s3 = out.findIndex(x=>x.k===D.s3k);
@@ -455,6 +584,11 @@ function render(D){
   $("in").insertAdjacentHTML("beforeend",
     `<div class="subtotal"><span>Totale incassato per residente</span><span>${fmt(totIn)}</span></div>` +
     (diff !== 0 ? `<div class="subtotal gap"><span>${diff>0 ? D.gap : D.surplus}</span><span>${fmt(Math.abs(diff))}</span></div>` : ""));
+
+  const inEur = inn.reduce((a,x)=>a+x.t,0);
+  $("g-title").textContent = D.gTitle;
+  $("facts").innerHTML = D.facts({out, inn, totEur, inEur, diff, pop:D.pop})
+    .map(([n,h,p])=>`<div class="fact"><span class="n">${n}</span><div><h3>${h}</h3><p>${p}</p></div></div>`).join("");
 }
 
 /* Scelta del Comune */
