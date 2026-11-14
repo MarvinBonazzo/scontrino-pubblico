@@ -29,7 +29,7 @@ Le cifre scritte a mano nelle slide (es. 2,80 € ospedali, 6,75 € IVA, 12,93 
 **Stessi numeri dello Scontrino dello Stipendio**: le 13 voci di `V` (nomi e milioni), le entrate totali, IVA, accise e residenti devono restare uguali a quelli di `scontrino-stipendio/index.html`. Se cambi un dato, cambialo in tutti e due.
 
 ## Fine della storia
-Sotto lo scontrino finale: "Ricomincia", poi i link "Scontrino dello Stipendio" e "Scontrino dello Stato" e il bottone "Fonti, calcoli e numeri interi". Il bottone apre il pannello `#info`: spesa ed entrate 2024 in euro interi, deficit, debito, residenti, le formule delle storie e i link alle fonti. Se cambi un dato, il pannello si aggiorna da solo tranne i testi delle fonti.
+Sotto lo scontrino finale: "Ricomincia", poi il link "Scontrino dello Stipendio" e il bottone "Fonti, calcoli e numeri interi". Il bottone apre il pannello `#info`: spesa ed entrate 2024 in euro interi, deficit, debito, residenti, le formule delle storie e i link alle fonti. Se cambi un dato, il pannello si aggiorna da solo tranne i testi delle fonti.
 
 ## Parole spiegate (glossario)
 Ogni parola tecnica si scrive `<u data-w="chiave">parola</u>` e toccandola si apre un cartoncino in basso. Le spiegazioni sono nell'oggetto `GLOSS`, una o due frasi senza altre parole difficili. Se aggiungi una parola tecnica nuova, aggiungi anche la sua voce.
