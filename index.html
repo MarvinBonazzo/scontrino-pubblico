@@ -1,641 +1,432 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Scontrino pubblico</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scontrino dello Stato</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* Layout: stesso scontrino dello stipendio. Avvio, stampa animata, risultato con barra della spesa per residente e due elenchi: dove vanno e da dove arrivano */
-:root{
-  --bg:#000000; --paper:#14181b; --field:#0a0d0f; --ink:#e8edf0; --muted:#98a6af; --rule:#2a3137;
-  --accent:#3d7bf0; --accent-ink:#ffffff; --accent-soft:#13264a;
-  --b1:#2f5bd3; --b2:#5b8def; --b3:#9cc3ff; --o1:#ff8c2e; --o2:#ffb36b; --o3:#ffd3a8; --rest:#4a555d; --in:#ff8c2e;
-  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-/* Senza questa regola display:flex di .screen e .modal batte l'attributo hidden e tutto resta visibile */
-[hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:32px 56px}
-.wrap{max-width:820px;margin:0 auto}
-.screen{display:flex;flex-direction:column;gap:24px}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6.5vw,3.3rem);line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance;text-align:center}
-h2{font-family:var(--display);font-weight:700;font-size:1.45rem;margin:0;text-wrap:balance;line-height:1.2;text-align:center}
-h3{font-family:var(--display);font-weight:700;font-size:1.12rem;margin:0;text-align:center}
-p{margin:0}
-.lede{color:var(--muted);max-width:52ch;font-size:1.08rem;text-align:center;margin:0 auto}
-.panel{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:20px}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.muted{color:var(--muted)}
-.hint{font-size:.88rem;color:var(--muted);text-align:center;max-width:60ch;margin:6px auto 0}
-button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-
-/* Avvio */
-.intro{min-height:70vh;justify-content:center;align-items:center;text-align:center}
-.cta{font-family:var(--display);font-weight:700;font-size:1.15rem;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:14px 26px;cursor:pointer}
-.cta:hover{filter:brightness(1.07)}
-.stub{font-family:var(--mono);font-size:.85rem;color:var(--muted);border:1px dashed var(--rule);border-radius:8px;padding:10px 16px;display:flex;flex-direction:column;gap:2px}
-
-/* Stampa */
-.loading{min-height:70vh;justify-content:center;align-items:center;text-align:center}
-.printer{width:min(360px,100%);background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:20px;font-family:var(--mono);font-size:.9rem;text-align:left}
-.printer .head{text-align:center;text-transform:uppercase;letter-spacing:.12em;font-weight:600;font-size:.78rem;color:var(--muted);padding-bottom:10px;border-bottom:1px dashed var(--rule);margin-bottom:10px}
-.step{display:grid;grid-template-columns:20px 1fr;gap:8px;padding:5px 0;color:var(--muted);transition:color .3s}
-.step .ic{width:14px;height:14px;border-radius:50%;border:2px solid var(--rule);align-self:center;transition:all .3s}
-.step.run{color:var(--ink)}
-.step.run .ic{border-color:var(--ink);border-top-color:transparent;animation:spin .7s linear infinite}
-.step.done{color:var(--ink)}
-.step.done .ic{background:var(--ink);border-color:var(--ink)}
-.ring{position:relative;width:180px;height:180px}
-.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.ring .track{fill:none;stroke:var(--rule);stroke-width:6}
-.ring .arc{fill:none;stroke:var(--ink);stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(255,255,255,.55))}
-.ring .check{position:absolute;inset:0;width:100%;height:100%;transform:none}
-.ring .check path{fill:none;stroke:var(--ink);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .45s ease-out forwards;filter:drop-shadow(0 0 6px rgba(255,255,255,.55))}
-.ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:2.2rem;color:var(--ink);font-variant-numeric:tabular-nums}
-@keyframes draw{to{stroke-dashoffset:0}}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Risultato */
-.topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
-.back{background:transparent;border:1px solid var(--rule);color:var(--ink);border-radius:999px;padding:7px 14px;font-family:var(--body);font-weight:600;cursor:pointer}
-.back:hover{border-color:var(--accent);color:var(--accent)}
-.hero-num{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,10vw,4.2rem);line-height:1;letter-spacing:-.02em;text-align:center;word-spacing:.04em}
-.lead-explain{font-size:1.08rem;max-width:56ch;text-align:center;margin:10px auto 0}
-.lead-explain b{font-family:var(--mono);font-weight:600}
-.lead-explain a{color:var(--accent)}
-.barwrap{position:relative}
-.bar{display:flex;height:58px;border-radius:6px;overflow:hidden}
-.seg{height:100%;border:0;padding:0;margin:0 -1px 0 0;cursor:pointer;transform-origin:left;animation:grow .7s ease both;transition:opacity .15s,filter .15s;min-width:0}
-.seg:last-child{margin-right:0}
-.bar.hovering .seg{opacity:.45}
-.bar.hovering .seg.on{opacity:1;filter:brightness(1.08)}
-.seg:focus-visible{outline:3px solid var(--ink);outline-offset:-3px}
-.tip{position:absolute;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--paper);border-radius:8px;padding:7px 11px;font-size:.86rem;width:max-content;max-width:min(300px,90vw);white-space:normal;text-align:center;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:2}
-.tip b{font-family:var(--mono);word-spacing:-.3em}
-.tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink)}
-@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.9rem}
-.legend button{background:none;border:0;padding:2px 0;color:var(--ink);font:inherit;cursor:pointer}
-.legend button:hover{text-decoration:underline}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
-.legend .mono{word-spacing:-.3em}
-.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;text-align:center}
-.summary div{display:flex;flex-direction:column;gap:2px}
-.summary b{font-family:var(--display);font-size:1.7rem;line-height:1.1;word-spacing:-.15em}
-.summary span{font-size:.86rem;color:var(--muted)}
-@media (max-width:560px){.summary{grid-template-columns:1fr}}
-
-/* Elenchi a fisarmonica, colonna unica come uno scontrino */
-.list{max-width:620px;margin:14px auto 0;width:100%}
-.voce{border-top:1px solid var(--rule)}
-.voce:first-child{border-top:0}
-.voce summary{list-style:none;display:grid;grid-template-columns:10px minmax(0,1fr) auto auto 18px;gap:12px;align-items:center;padding:16px 10px;cursor:pointer;border-radius:6px}
-.voce summary::-webkit-details-marker{display:none}
-.voce summary:hover{background:var(--bg)}
-.voce .stripe{width:10px;height:10px;border-radius:2px}
-.voce .ttl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;font-family:var(--display);font-weight:700;font-size:1.08rem}
-.mbar{display:inline-block;width:70px;height:6px;background:var(--field);border-radius:3px;overflow:hidden;flex:none}
-.mbar span{display:block;height:100%;border-radius:3px}
-.voce .pc{font-family:var(--mono);font-size:.74rem;color:var(--muted);white-space:nowrap;justify-self:end;font-variant-numeric:tabular-nums}
-.voce .amt{font-family:var(--mono);font-weight:600;font-size:1.1rem;justify-self:end;text-align:right;min-width:84px;font-variant-numeric:tabular-nums;word-spacing:-.3em}
-.voce .chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-3px,-3px);transition:transform .2s;justify-self:center}
-.voce[open] .chev{transform:rotate(-135deg) translate(-2px,-2px)}
-.voce .body{padding:0 10px 18px 32px;display:flex;flex-direction:column;gap:12px}
-.sdesc{color:var(--muted);font-size:.98rem;max-width:58ch}
-.items{background:var(--bg);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
-.items>span{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-.it{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:baseline;font-size:.92rem}
-.it b{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;word-spacing:-.3em}
-.it small{font-family:var(--mono);color:var(--muted);font-size:.8rem;white-space:nowrap;min-width:52px;text-align:right;word-spacing:-.3em}
-.subtotal{display:grid;grid-template-columns:10px minmax(0,1fr) auto 18px;gap:12px;padding:10px;margin-top:2px;background:var(--bg);border-radius:6px;font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums}
-.subtotal span:first-child{grid-column:2}
-.subtotal span:last-child{grid-column:3;justify-self:end;text-align:right;min-width:84px;word-spacing:-.3em}
-.subtotal.gap span:last-child{color:var(--o2)}
-@media (max-width:520px){
-  .voce summary{grid-template-columns:10px minmax(0,1fr) auto 18px}
-  .voce .pc{grid-column:2;grid-row:2;justify-self:start}
-  .voce .body{padding-left:10px}
-  .it{grid-template-columns:minmax(0,1fr) auto}
-  .it small{display:none}
-}
-.notes{font-size:.92rem;color:var(--muted);max-width:60ch;margin:0 auto;display:flex;flex-direction:column;gap:8px;text-align:center}
-.notes a{color:var(--accent)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-
-/* Come lo paghi tu: riga che collega un'entrata allo stipendio o agli acquisti */
-.you{border-left:3px solid var(--o1);padding:4px 0 4px 12px;font-size:.95rem;max-width:58ch}
-.you>span{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-.you a,.facts a{color:var(--accent)}
-/* Perché i conti non tornano */
-.facts{max-width:600px;margin:14px auto 0;display:flex;flex-direction:column;gap:16px}
-.fact{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start}
-.fact .n{font-family:var(--display);font-weight:800;font-size:1.5rem;line-height:1;color:var(--o1);text-align:center;padding-top:2px}
-.fact h3{text-align:left;margin-bottom:4px}
-.fact p{color:var(--muted);font-size:.98rem}
-.fact p b{color:var(--ink);font-family:var(--mono);font-weight:600;word-spacing:-.3em}
-.link{display:inline-block;text-decoration:none}
-
-/* Parole spiegate: si toccano e si apre un cartoncino in basso */
-u[data-w]{text-decoration:underline dotted;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1.5px;cursor:help;border-radius:3px}
-u[data-w]:hover,u[data-w]:focus-visible{color:var(--accent);text-decoration-color:var(--accent);outline:none}
-.gl{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:max(16px, env(safe-area-inset-bottom, 0px));width:min(480px, calc(100% - 32px));background:var(--ink);color:var(--paper);border-radius:12px;padding:16px 18px 14px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:grid;gap:6px;text-align:left}
-.gl b{font-family:var(--display);font-size:1.15rem}
-.gl p{font-size:1rem;line-height:1.45}
-.gl button{justify-self:end;font-family:var(--body);font-weight:600;background:var(--paper);color:var(--ink);border:0;border-radius:999px;padding:7px 16px;cursor:pointer}
-
-/* Scelta del Comune */
-.more{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
-.more .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.ghost{font-family:var(--display);font-weight:700;font-size:1.05rem;background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:13px 22px;cursor:pointer}
-.ghost:hover{border-color:var(--accent);color:var(--accent)}
-.modal{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.72);display:flex;align-items:flex-start;justify-content:center;
-  padding:max(24px, calc(env(safe-area-inset-top, 0px) + 16px)) max(16px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px))}
-.sheet{width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;gap:14px;background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:20px}
-.sheet .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.sheet h2{text-align:left}
-.x{background:transparent;border:1px solid var(--rule);color:var(--ink);border-radius:999px;width:36px;height:36px;font-size:1.1rem;cursor:pointer;flex:none}
-.x:hover{border-color:var(--accent);color:var(--accent)}
-#q{width:100%;outline:none;-webkit-appearance:none;appearance:none;font-family:var(--mono);font-size:1.1rem;padding:12px 14px;border:2px solid var(--rule);border-radius:8px;background:var(--field);color:var(--ink)}
-#q:focus{border-color:var(--accent)}
-#q::placeholder{color:var(--muted);opacity:.7}
-.results{overflow-y:auto;display:flex;flex-direction:column;min-height:120px}
-.results button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:baseline;text-align:left;background:transparent;border:0;border-top:1px solid var(--rule);color:var(--ink);padding:12px 6px;cursor:pointer;font:inherit}
-.results button:first-child{border-top:0}
-.results button:hover,.results button:focus-visible{background:var(--bg)}
-.results b{font-family:var(--display);font-weight:700}
-.results span{color:var(--muted);font-size:.86rem}
-.results small{font-family:var(--mono);color:var(--muted);font-size:.8rem;white-space:nowrap}
-.results p{color:var(--muted);text-align:center;padding:18px 0}
-.cmp{font-family:var(--mono);font-size:.84rem;color:var(--muted);word-spacing:-.3em}
-.cmp b{color:var(--ink);font-weight:600}
+/* VOICE: giocoso e diretto, come le storie di Instagram; mai condiscendente
+   IDEA: un anno di soldi pubblici raccontato a storie, che finisce con uno scontrino di carta vero
+   PICTURE: numeri giganti su campi di colore pieni, poi 100 monetine, poi lo scontrino
+   COLOUR and TYPE: giallo, rosa, blu elettrico, arancio, lilla; Archivo 900 + Space Mono per lo scontrino
+   LAYOUT: una storia verticale a schermo intero sul telefono, cornice da telefono su desktop */
+:root{color-scheme:light dark;--out:light-dark(#e9e6df,#0d0d0f);--ink:#111}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;margin:0}
+body{background:var(--out);font:500 17px/1.45 Archivo,system-ui,sans-serif;color:var(--ink);overflow:hidden;height:100dvh;display:grid;place-items:center}
+.phone{position:relative;width:min(440px,100vw);height:min(880px,100dvh);overflow:hidden;border-radius:clamp(0px,(100vw - 480px)*999,28px);box-shadow:0 30px 80px #0005}
+.bars{position:absolute;z-index:5;top:12px;left:12px;right:12px;display:flex;gap:4px}
+.bars i{flex:1;height:4px;border-radius:2px;background:#1113}
+.bars i b{display:block;height:100%;width:0;border-radius:2px;background:#111;transition:width .3s}
+.bars i.done b{width:100%}
+.slide{position:absolute;inset:0;padding:64px 28px 40px;display:flex;flex-direction:column;justify-content:center;gap:18px;opacity:0;pointer-events:none;transform:scale(1.04);transition:opacity .35s,transform .35s}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+h1,h2{font-weight:900;line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h1{font-size:clamp(40px,11vw,52px)}
+h2{font-size:clamp(28px,8vw,36px)}
+.big{font-weight:900;font-size:clamp(64px,22vw,112px);line-height:.9;letter-spacing:-.04em;white-space:nowrap}
+.big small{font-size:.4em;letter-spacing:0}
+p{max-width:34ch;text-wrap:pretty}
+.sticker{font-size:88px;line-height:1;display:inline-block;transform:rotate(-8deg);filter:drop-shadow(4px 6px 0 #0002)}
+.chip{align-self:flex-start;background:#111;color:#fff;font-weight:700;font-size:14px;padding:6px 12px;border-radius:99px}
+.hint{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:14px;font-weight:700;opacity:.6}
+.y{background:#ffd60a}.p{background:#ff5c9a}.b{background:#4361ff;--ink:#fff;color:#fff}.o{background:#ff7a1a}.l{background:#b9a3ff}.k{background:#111;color:#fff}
+.b .chip,.k .chip{background:#fff;color:#111}
+.waffle{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;width:100%;max-width:300px}
+.waffle span{aspect-ratio:1;border-radius:50%;box-shadow:inset -2px -3px 0 #0003;transform:scale(0);transition:transform .3s}
+.on .waffle span{transform:scale(1)}
+.leg{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:14px;font-weight:700}
+.leg span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px}
+.flow{display:grid;gap:10px;width:100%}
+.flow div{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;border-bottom:2px solid #1112;padding-bottom:8px}
+.flow b{font-size:28px;font-weight:900;white-space:nowrap}
+.k{justify-content:flex-start;overflow-y:auto;padding-top:56px}
+.receipt{background:#fbfaf6;color:#222;font:400 14px/1.5 "Space Mono",monospace;padding:22px 18px 28px;position:relative;
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%}
+.receipt .on-in{animation:print .5s both}
+.receipt h3{text-align:center;font-size:16px;font-weight:700}
+.receipt .c{text-align:center}
+/* Puntini tra nome e cifra disegnati come sfondo sull'ultima riga: i nomi lunghi vanno a capo invece di finire sotto la cifra */
+.row{display:flex;gap:8px;align-items:flex-end}
+.row>span:first-child:not(.n){align-self:flex-start}
+.row .n{flex:1;background:radial-gradient(circle,#2226 1px,#0000 1.5px) 0 calc(100% - 5px)/8px 4px repeat-x}
+.row .n span{background:#fbfaf6;padding-right:6px}
+.row .v{white-space:nowrap}
+hr{border:0;border-top:2px dashed #2226;margin:12px 0}
+.tot{font-weight:700;font-size:18px}
+.bc{height:46px;margin:14px auto 6px;width:80%;background:repeating-linear-gradient(90deg,#222 0 2px,#0000 2px 4px,#222 4px 7px,#0000 7px 9px,#222 9px 10px,#0000 10px 13px)}
+.src{font-size:12px;opacity:.7;margin-top:10px}
+button{font:700 16px Archivo,sans-serif;min-height:48px;padding:0 22px;border-radius:99px;border:0;background:#ffd60a;color:#111;cursor:pointer;margin-top:18px;align-self:center}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.cmp{display:grid;gap:12px;width:100%}
+.cmp div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-weight:700;font-size:15px}
+.cmp div i{grid-column:1/-1;height:14px;border-radius:7px;background:#1111}
+.cmp div i b{display:block;height:100%;border-radius:7px;background:currentColor;width:0;transition:width .7s .15s}
+.on .cmp div i b{width:var(--w)}
+.cmp em{font-style:normal;white-space:nowrap}
+.note{font-size:14px;opacity:.75}
+a.link{display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;font:700 16px Archivo,sans-serif;min-height:48px;padding:10px 22px;line-height:1.25;border-radius:99px;background:#fff;color:#111;align-self:center;margin-top:10px}
+.tip{font-size:14px;font-weight:700}
+u{text-decoration:underline dotted 2px;text-underline-offset:3px}
+u[data-w]{cursor:pointer;border-radius:4px}
+u[data-w]:hover{background:#fff4}
+u[data-w]:focus-visible,a.link:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.sheet{position:absolute;z-index:10;left:12px;right:12px;bottom:12px;background:#fff;color:#111;border:3px solid #111;border-radius:20px;box-shadow:4px 4px 0 #111;padding:18px 18px 16px;display:grid;gap:8px;animation:up .2s both}
+.sheet[hidden]{display:none}
+.sheet h3{font-weight:900;font-size:22px;line-height:1.1}
+.sheet p{max-width:none;font-size:16px}
+.sheet button{justify-self:start;margin:0;font-size:15px;min-height:44px;padding:0 18px;background:#111;color:#fff}
+/* Bottoni finali: le due pagine complete e il pannello con fonti, calcoli e numeri interi */
+.ends{display:grid;gap:10px;width:100%;margin-top:14px}
+.ends .link{margin:0;width:100%;display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;font:700 16px Archivo,sans-serif;min-height:48px;padding:10px 22px;line-height:1.25;border-radius:99px;border:0;background:#fff;color:#111;cursor:pointer}
+.ends .link.src{background:transparent;color:#fff;border:2px solid #fff}
+.ends .link:focus-visible{outline:3px solid #ffd60a;outline-offset:3px}
+/* Pannello fonti e calcoli: copre il telefono e scorre */
+.info{position:absolute;inset:0;z-index:20;background:#fbfaf6;color:#111;overflow-y:auto;padding:0 20px 32px;font-size:15px;line-height:1.45}
+.info[hidden]{display:none}
+.info-top{position:sticky;top:0;z-index:1;background:#fbfaf6;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:18px 0 10px;border-bottom:2px solid #111}
+.info h3{font-weight:900;font-size:22px;line-height:1.1}
+.info h4{font-weight:900;font-size:17px;margin:20px 0 6px}
+.info p{max-width:none;margin:6px 0}
+.info small{display:block;font-size:13px;opacity:.7;margin-top:4px}
+.info table{width:100%;border-collapse:collapse;font:400 12.5px/1.4 "Space Mono",monospace;margin-top:6px}
+.info td{padding:5px 0;border-bottom:1px dashed #2223;vertical-align:top}
+.info td:last-child{text-align:right;white-space:nowrap;padding-left:10px}
+.info tr.tot td{font-weight:700;border-bottom:0;border-top:2px solid #111}
+.info .f{font:400 12.5px/1.55 "Space Mono",monospace;background:#efece4;border-radius:8px;padding:8px 10px;margin:6px 0}
+.info ul{margin:6px 0 0;padding-left:18px;display:grid;gap:6px}
+.info a{color:#3048d6}
+.info .x{margin:0;flex:none;width:40px;min-height:40px;padding:0;border:0;border-radius:99px;background:#111;color:#fff;font:700 16px Archivo,sans-serif;cursor:pointer}
+@keyframes up{from{transform:translateY(20px);opacity:0}}
+@keyframes print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+@media (prefers-reduced-motion:reduce){.slide,.waffle span,.bars b,.cmp div i b{transition:none}.receipt .on-in{animation:none}}
 </style>
-<div class="wrap">
+</head>
+<body>
+<main class="phone" id="ph" aria-live="polite">
+  <div class="bars" id="bars"></div>
 
-  <section class="screen intro" id="s-intro">
-    <h1>Quanti soldi arrivano allo Stato, e dove vanno?</h1>
-    <p class="lede">Tutti i soldi pubblici di un anno, cioè di Stato, Regioni, Comuni e INPS insieme: quanto entra, da dove, e come viene speso. Diviso per ogni persona che vive in Italia.</p>
-    <div class="stub"><span>ITALIA</span><span>anno 2024</span><span>58,9 milioni di residenti</span></div>
-    <button class="cta" id="go" type="button">Stampa lo scontrino</button>
+  <section class="slide y">
+    <span class="chip">Italia · 2024</span>
+    <h1>Scontrino dello Stato</h1>
+    <p>Un anno di soldi pubblici, raccontato in un minuto: quanto ha speso lo Stato per te, da dove arrivano i soldi e perché non bastano.</p>
+    <p class="tip">👆 Le parole <u>sottolineate</u> si possono toccare: ti spiegano cosa vogliono dire.</p>
+    <div class="hint">Tocca per andare avanti →</div>
   </section>
 
-  <section class="screen loading" id="s-load" hidden aria-live="polite">
-    <h2>Sto facendo i conti</h2>
-    <div class="printer">
-      <div class="head">Scontrino in stampa</div>
-      <div id="steps"></div>
+  <section class="slide p">
+    <h2>Ogni giorno lo Stato ha speso per te</h2>
+    <div class="big"><span data-n="51.56" data-d="2">0</span><small> €</small></div>
+    <p>Sì, anche se non lavori. Anche per un neonato. È tutta la <u data-w="spesa">spesa pubblica</u> divisa per ogni persona che vive in Italia, i <u data-w="residenti">residenti</u>.</p>
+  </section>
+
+  <section class="slide b">
+    <h2>In un anno fanno</h2>
+    <div class="big" style="font-size:clamp(64px,21vw,104px)"><span data-n="18820">0</span><small> €</small></div>
+    <p>Circa 1.570 € al mese a testa. Più della metà (55%) va a pensioni, sanità e sussidi: soldi che servono quando una persona non può lavorare perché è anziana, malata o ha perso il lavoro.</p>
+  </section>
+
+  <section class="slide o">
+    <span class="chip">Al primo posto</span>
+    <span class="sticker">🧓</span>
+    <h2>Le pensioni</h2>
+    <div class="big"><span data-n="16.72" data-d="2">0</span><small> €</small></div>
+    <p>al giorno, per ognuno di noi. Quasi 1 euro su 3 va alle pensioni.</p>
+  </section>
+
+  <section class="slide y">
+    <span class="chip">Da sapere</span>
+    <h2>I tuoi contributi non finiscono in un salvadanaio</h2>
+    <p>I <u data-w="contributi">contributi</u> che paga chi lavora oggi servono a pagare le pensioni di oggi. Quando andrai in pensione tu, la pagheranno i lavoratori di quel momento.</p>
+    <div class="cmp"><div><span>Pensioni pagate</span><em>16,72 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Contributi incassati</span><em>12,93 €</em><i><b style="--w:77.3%"></b></i></div></div>
+    <p class="note">Euro al giorno, a testa. I contributi non bastano: il resto arriva dalle altre tasse. Per questo conta quante persone lavorano.</p>
+  </section>
+
+  <section class="slide l">
+    <span class="chip">Al secondo posto</span>
+    <span class="sticker">🏥</span>
+    <h2>La sanità</h2>
+    <div class="big"><span data-n="6.79" data-d="2">0</span><small> €</small></div>
+    <p>al giorno. Pronto soccorso, medico di base, farmaci, vaccini.</p>
+  </section>
+
+  <section class="slide p">
+    <span class="chip">Dentro la sanità</span>
+    <h2>Come si dividono i soldi della sanità</h2>
+    <div class="cmp"><div><span>Ospedali</span><em>2,80 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Medici di base e visite</span><em>2,50 €</em><i><b style="--w:89.3%"></b></i></div><div><span>Farmaci</span><em>0,95 €</em><i><b style="--w:33.9%"></b></i></div><div><span>Prevenzione</span><em>0,31 €</em><i><b style="--w:11.1%"></b></i></div></div>
+    <p>Vaccini, screening e controlli ricevono 31 centesimi al giorno: meno di 5 € ogni 100 spesi in sanità.</p>
+  </section>
+
+  <section class="slide b">
+    <span class="sticker">🤝</span>
+    <h2>Sussidi e assistenza: a chi vanno</h2>
+    <div class="cmp"><div><span>Invalidità e malattia</span><em>1,76 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Famiglie con figli</span><em>1,50 €</em><i><b style="--w:85.2%"></b></i></div><div><span>Chi perde il lavoro</span><em>0,94 €</em><i><b style="--w:53.4%"></b></i></div><div><span>Chi è in povertà</span><em>0,70 €</em><i><b style="--w:39.8%"></b></i></div></div>
+    <p class="note">Euro al giorno, a testa. L'<u data-w="assegno">assegno unico</u> per i figli e la <u data-w="naspi">NASpI</u> per chi perde il lavoro sono qui.</p>
+  </section>
+
+  <section class="slide y">
+    <span class="sticker">🎒</span>
+    <h2>La scuola. Anche la tua.</h2>
+    <div class="big"><span data-n="4.15" data-d="2">0</span><small> €</small></div>
+    <p>al giorno. Dall'asilo all'università, con prof, aule, mense e scuolabus.</p>
+  </section>
+
+  <section class="slide p">
+    <span class="chip">Plot twist</span>
+    <span class="sticker">💳</span>
+    <h2>Interessi sul debito</h2>
+    <div class="big"><span data-n="4.08" data-d="2">0</span><small> €</small></div>
+    <p>al giorno, quasi quanto la scuola. Negli anni lo Stato si è fatto prestare soldi: è il <u data-w="debito">debito pubblico</u>. Questi sono solo gli <u data-w="interessi">interessi</u>: come quando un amico ti presta 10 € e tu gliene ridai 11.</p>
+  </section>
+
+  <section class="slide o">
+    <span class="chip">Confronto</span>
+    <h2>Gli interessi a confronto con altre spese</h2>
+    <div class="cmp"><div><span>Interessi sul debito</span><em>4,08 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Difesa</span><em>1,32 €</em><i><b style="--w:32.4%"></b></i></div><div><span>Ambiente</span><em>0,92 €</em><i><b style="--w:22.5%"></b></i></div><div><span>Ricerca di base</span><em>0,59 €</em><i><b style="--w:14.5%"></b></i></div><div><span>Università</span><em>0,43 €</em><i><b style="--w:10.5%"></b></i></div></div>
+    <p>Gli interessi costano quasi 10 volte le università. Ogni euro in più di debito oggi sono interessi da pagare domani, al posto di altro.</p>
+  </section>
+
+  <section class="slide y">
+    <h2>Ogni euro, in 100 monetine</h2>
+    <div class="waffle" id="waffle"></div>
+    <div class="leg" id="leg"></div>
+  </section>
+
+  <section class="slide l">
+    <span class="chip">Anche tu paghi le tasse</span>
+    <span class="sticker">🛍️</span>
+    <h2>Ogni volta che compri qualcosa</h2>
+    <p>Su una felpa da 30 € ci sono 5,41 € di <u data-w="iva">IVA</u>. Sulla benzina, le bollette e le sigarette ci sono anche le <u data-w="accise">accise</u>.</p>
+    <div class="cmp"><div><span>IVA, al giorno a testa</span><em>6,75 €</em><i><b style="--w:100.0%"></b></i></div><div><span>Accise e imposte sui consumi</span><em>4,60 €</em><i><b style="--w:68.1%"></b></i></div></div>
+    <p class="note">Anche un ragazzo senza stipendio contribuisce: IVA e accise sono quasi un quarto delle entrate dello Stato.</p>
+  </section>
+
+  <section class="slide y">
+    <span class="chip">Entrate, al giorno a testa</span>
+    <h2>E i soldi da dove arrivano?</h2>
+    <div class="cmp"><div><span><u data-w="contributi">Contributi</u></span><em>12,93 €</em><i><b style="--w:100.0%"></b></i></div><div><span><u data-w="irpef">IRPEF</u></span><em>12,72 €</em><i><b style="--w:98.4%"></b></i></div><div><span><u data-w="iva">IVA</u></span><em>6,75 €</em><i><b style="--w:52.2%"></b></i></div><div><span><u data-w="accise">Accise</u> e consumi</span><em>4,60 €</em><i><b style="--w:35.6%"></b></i></div><div><span><u data-w="irap">IRAP</u>, <u data-w="imu">IMU</u> e simili</span><em>3,04 €</em><i><b style="--w:23.5%"></b></i></div><div><span>Tasse delle aziende (<u data-w="ires">IRES</u>)</span><em>2,73 €</em><i><b style="--w:21.1%"></b></i></div><div><span>Ticket, rette, biglietti</span><em>2,41 €</em><i><b style="--w:18.6%"></b></i></div><div><span>Fondi UE, affitti e altro</span><em>2,98 €</em><i><b style="--w:23.0%"></b></i></div></div>
+    <p class="note">Contributi e IRPEF si vedono in busta paga. IVA e accise si pagano a ogni acquisto, a qualsiasi età.</p>
+  </section>
+
+  <section class="slide b">
+    <span class="chip">I conti non tornano</span>
+    <h2>Entra meno di quanto si spende</h2>
+    <div class="flow">
+      <div><span>Tasse e contributi, al giorno</span><b>48,16 €</b></div>
+      <div><span>Spesa, al giorno</span><b>51,56 €</b></div>
+      <div><span>Mancano</span><b>3,40 €</b></div>
     </div>
-    <div class="ring" aria-hidden="true">
-      <svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="44"/><circle class="arc" id="arc" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="276.46"/></svg>
-      <div class="pct" id="pct">0%</div>
-      <svg class="check" id="check" viewBox="0 0 100 100" hidden><path d="M31 52 L45 66 L71 38"/></svg>
+    <p>Quei 3,40 € al giorno sono il <u data-w="deficit">deficit</u>. Lo Stato li prende in prestito vendendo <u data-w="btp">BTP e BOT</u>: come pagare con la carta di credito. Così il debito cresce, e l'anno dopo ci sono più interessi da pagare.</p>
+  </section>
+
+  <section class="slide o">
+    <span class="chip">Il conto di tutti gli anni</span>
+    <span class="sticker">🧾</span>
+    <h2>Il debito pubblico, a testa</h2>
+    <div class="big" style="font-size:clamp(56px,18vw,96px)"><span data-n="50343">0</span><small> €</small></div>
+    <p>Tutti i prestiti degli anni passati non ancora restituiti: 2.967 miliardi alla fine del 2024, divisi per ogni persona che vive in Italia. Non vanno ridati tutti insieme: quando un prestito scade, spesso se ne chiede uno nuovo. Ma gli interessi si pagano ogni anno.</p>
+  </section>
+
+  <section class="slide k" id="last">
+    <span class="chip">Il tuo scontrino</span>
+    <div class="receipt" id="rc"></div>
+    <button id="again" type="button">Ricomincia</button>
+    <div class="ends">
+      <a class="link" href="https://marvinbonazzo.github.io/scontrino-stipendio/">Scontrino dello Stipendio</a>
+      <a class="link" href="https://marvinbonazzo.github.io/scontrino-pubblico/">Scontrino dello Stato</a>
+      <button class="link src" id="info-open" type="button">Fonti, calcoli e numeri interi</button>
     </div>
   </section>
 
-  <section class="screen" id="s-res" hidden>
-    <div class="topbar">
-      <span class="muted" id="r-where"></span>
-      <button class="back" id="again" type="button"></button>
-    </div>
-
-    <div class="panel screen" style="gap:16px">
-      <div>
-        <h2 id="r-title"></h2>
-        <p class="hero-num mono" id="r-hero"></p>
-        <p class="lead-explain" id="r-explain"></p>
-        <p class="hint" id="r-why"></p>
-      </div>
-      <h3 style="margin-top:6px">Ogni euro, in una barra</h3>
-      <div class="barwrap"><div class="tip" id="tip" hidden></div><div class="bar" id="bar" role="group" aria-label="Spesa per residente divisa per voce"></div></div>
-      <div class="legend" id="legend"></div>
-      <div class="summary">
-        <div><b class="mono" id="s-1"></b><span id="s-1l"></span></div>
-        <div><b class="mono" id="s-2"></b><span>al mese per residente</span></div>
-        <div><b class="mono" id="s-3"></b><span id="s-3l"></span></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Dove vanno i <span class="mono" id="t-out"></span></h2>
-      <p class="hint" id="h-out"></p>
-      <div class="list" id="out"></div>
-    </div>
-
-    <div class="panel">
-      <h2>Da dove arrivano</h2>
-      <p class="hint" id="h-in"></p>
-      <div class="list" id="in"></div>
-    </div>
-
-    <div class="panel">
-      <h2 id="g-title"></h2>
-      <div class="facts" id="facts"></div>
-    </div>
-
-    <div class="notes" id="notes"></div>
-
-    <div class="panel more">
-      <h2 id="m-title">E il tuo Comune?</h2>
-      <p class="hint" id="m-hint">Scegli un Comune e vedi quanto ha speso per ogni residente negli ultimi 12 mesi, e da dove sono arrivati i soldi.</p>
-      <div class="row">
-        <button class="cta" id="pick" type="button">Scegli un Comune</button>
-        <button class="ghost" id="toItaly" type="button" hidden>Torna all'Italia</button>
-      </div>
-    </div>
-
-    <div class="panel more">
-      <h2>E tu, quanto ci metti?</h2>
-      <p class="hint">Questo scontrino mostra i soldi di tutti. Lo Scontrino delle tasse parte dal tuo stipendio: quanto dai ogni mese in <u data-w="contributi">contributi</u> e <u data-w="irpef">IRPEF</u>, e in quali di queste voci finiscono.</p>
-      <a class="ghost link" href="https://marvinbonazzo.github.io/scontrino-stipendio/">Calcola dal tuo stipendio →</a>
-    </div>
-  </section>
-</div>
-
-<div class="gl" id="gl" hidden role="dialog" aria-live="polite" aria-labelledby="gl-t"><b id="gl-t"></b><p id="gl-p"></p><button type="button" id="gl-x">Ho capito</button></div>
-
-<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mt">
-  <div class="sheet">
-    <div class="top"><h2 id="mt">Scegli un Comune</h2><button class="x" id="close" type="button" aria-label="Chiudi">✕</button></div>
-    <input id="q" type="text" placeholder="Scrivi il nome, es. Firenze" autocomplete="off" spellcheck="false">
-    <div class="results" id="results"><p>Carico i comuni…</p></div>
+  <div class="info" id="info" hidden role="dialog" aria-labelledby="info-t">
+    <div class="info-top"><h3 id="info-t">Fonti, calcoli e numeri interi</h3><button class="x" id="info-x" type="button" aria-label="Chiudi">✕</button></div>
+    <div id="info-body"></div>
   </div>
-</div>
+
+  <div class="sheet" id="sheet" role="dialog" aria-labelledby="sh-t" hidden>
+    <h3 id="sh-t"></h3>
+    <p id="sh-p"></p>
+    <button type="button" id="sh-ok">Ho capito</button>
+  </div>
+</main>
 
 <script>
-const M = 1e6;
-const PAL = ["--b1","--o1","--b2","--o2","--b3","--o3"];
-const $ = id => document.getElementById(id);
-const fmt = n => Math.round(n).toLocaleString("it-IT",{useGrouping:"always"}) + " €";
-const big = n => n >= 1e9
-  ? (n/1e9).toLocaleString("it-IT",{useGrouping:"always",maximumFractionDigits:n>=1e11?0:1}) + " mld"
-  : (n/1e6).toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1}) + " mln";
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const STIPENDIO = "https://marvinbonazzo.github.io/scontrino-stipendio/";
+{
+const POP = 58934177, M = 1e6;
+const V = [
+  ["🧓","Pensioni",359572,"#ff7a1a"],
+  ["🏥","Sanità",146075,"#ff5c9a"],
+  ["🤝","Sussidi e assistenza",108563,"#4361ff"],
+  ["🎒","Scuola",89180,"#b9a3ff"],
+  ["💳","Interessi sul debito",87789,"#111111"],
+  ["🏛️","Funzionamento dello Stato",82625,"#2ec4b6"],
+  ["🏭","Aiuti all'economia",60557,"#c9c2b0"],
+  ["🚆","Trasporti",51824,"#c9c2b0"],
+  ["🚓","Sicurezza e giustizia",39094,"#c9c2b0"],
+  ["🪖","Difesa",28301,"#c9c2b0"],
+  ["♻️","Ambiente",19828,"#c9c2b0"],
+  ["⚽","Cultura e sport",18774,"#c9c2b0"],
+  ["💡","Casa e territorio",16973,"#c9c2b0"]
+];
+const day = t => t*M/POP/365;
+const eur = (n,d=2) => n.toLocaleString("it-IT",{useGrouping:"always",minimumFractionDigits:d,maximumFractionDigits:d});
+const tot = V.reduce((a,v)=>a+v[2],0);
 
-/* Parole spiegate. Chiave → [titolo, spiegazione in una o due frasi, senza altre parole difficili].
-   Stesso elenco dello Scontrino delle tasse: se cambi una spiegazione, cambiala in tutti e due. */
+/* 100 monetine: le prime 6 voci con il loro colore, il resto insieme */
+const groups = V.slice(0,6).map(v=>[v[1],v[2],v[3]]).concat([["Tutto il resto",V.slice(6).reduce((a,v)=>a+v[2],0),"#f4f1e8"]]);
+const raw = groups.map(g=>g[1]/tot*100), fl = raw.map(Math.floor);
+let left = 100 - fl.reduce((a,b)=>a+b,0);
+raw.map((r,i)=>[r-fl[i],i]).sort((a,b)=>b[0]-a[0]).slice(0,left).forEach(([,i])=>fl[i]++);
+let k = 0;
+document.getElementById("waffle").innerHTML = groups.map((g,i)=>Array.from({length:fl[i]},()=>`<span style="background:${g[2]};transition-delay:${(k++)*8}ms"></span>`).join("")).join("");
+document.getElementById("leg").innerHTML = groups.map((g,i)=>`<span style="--c:${g[2]}">${g[0]} ${fl[i]}</span>`).join("");
+
+/* scontrino finale.
+   Arrotondando ogni riga al centesimo la somma non torna col totale (51,58 invece di 51,56).
+   Sistemo i centesimi in più o in meno sulle righe dove la correzione resta più vicina al valore vero
+   (sempre meno di 1 centesimo), lasciando stare le voci che compaiono anche nelle storie. */
+const NELLE_STORIE = new Set(["Pensioni","Sanità","Scuola","Interessi sul debito","Difesa","Ambiente"]);
+const exact = V.map(v=>day(v[2])*100), cents = exact.map(Math.round);
+const diff = Math.round(day(tot)*100) - cents.reduce((a,b)=>a+b,0), step = Math.sign(diff);
+V.map((v,i)=>i).filter(i=>!NELLE_STORIE.has(V[i][1]))
+  .sort((a,b)=>Math.abs(cents[a]+step-exact[a]) - Math.abs(cents[b]+step-exact[b]))
+  .slice(0,Math.abs(diff)).forEach(i=>cents[i]+=step);
+document.getElementById("rc").innerHTML = `
+  <h3>SCONTRINO DELLO STATO</h3>
+  <div class="c">Scontrino di un giorno qualunque<br>del 2024, per 1 residente</div><hr>
+  ${V.map((v,i)=>`<div class="row"><span>${v[0]}</span><span class="n"><span>${v[1]}</span></span><span class="v">${eur(cents[i]/100)} €</span></div>`).join("")}
+  <hr><div class="row tot"><span class="n"><span>TOTALE</span></span><span class="v">${eur(day(tot))} €</span></div>
+  <div class="row"><span class="n"><span>Pagato con tasse</span></span><span class="v">48,16 €</span></div>
+  <div class="row"><span class="n"><span>Messo sul conto (debito)</span></span><span class="v">3,40 €</span></div>
+  <div class="bc"></div>
+  <div class="c">GRAZIE E ARRIVEDERCI<br>al 2025</div>
+  <div class="src">Numeri veri: spesa e entrate pubbliche 2024 (<u data-w="eurostat">Eurostat</u>, <u data-w="cofog">COFOG</u>), debito pubblico a fine 2024 (Banca d'Italia), 58,9 milioni di residenti (<u data-w="istat">ISTAT</u>, 1° gennaio 2025). Non è quanto paghi tu: è la spesa totale divisa per tutti.</div>`;
+
+/* Pannello fonti e calcoli: gli stessi numeri delle storie, ma interi (in euro, per tutta l'Italia) e con le formule */
+const ENTRATE = [["Contributi sociali",278140],["IRPEF e altre imposte sui redditi delle persone",273638],["IVA",145187],["Accise e altre imposte sui consumi",99042],["IRAP, IMU e altre imposte sulla produzione",65371],["IRES, imposte sugli utili delle società",58665],["Vendita di servizi: ticket, rette, tariffe",51753],["Trasferimenti, compresi i fondi UE",34434],["Interessi, affitti e dividendi",16729],["Altre imposte",13066]];
+const DEBITO = 2966900;   // milioni di euro, Banca d'Italia, fine 2024
+const intero = m => (m*M).toLocaleString("it-IT",{useGrouping:"always"}) + " €";
+const num = n => n.toLocaleString("it-IT",{useGrouping:"always"});
+const tab = (rows, totName) => `<table>${rows.map(r=>`<tr><td>${r[0]}</td><td>${intero(r[1])}</td></tr>`).join("")}<tr class="tot"><td>${totName}</td><td>${intero(rows.reduce((a,r)=>a+r[1],0))}</td></tr></table>`;
+const entTot = ENTRATE.reduce((a,r)=>a+r[1],0);
+document.getElementById("info-body").innerHTML = `
+  <h4>Spesa pubblica 2024, per voce</h4>
+  <p>Tutto quello che hanno speso Stato, Regioni, Comuni e INPS insieme nel 2024.</p>
+  ${tab(V.map(v=>[v[0]+" "+v[1], v[2]]), "Totale spesa")}
+  <small>Fonte: <u data-w="eurostat">Eurostat</u>, spesa delle amministrazioni pubbliche per funzione (<u data-w="cofog">COFOG</u>), tabella gov_10a_exp. Eurostat pubblica i dati in milioni di euro: gli ultimi sei zeri vengono da lì.</small>
+
+  <h4>Entrate pubbliche 2024</h4>
+  ${tab(ENTRATE, "Totale entrate")}
+  <small>Fonte: Eurostat, conti delle amministrazioni pubbliche, tabella gov_10a_main.</small>
+
+  <h4>Deficit e debito</h4>
+  <div class="f">Spesa − entrate = ${intero(tot)} − ${intero(entTot)}<br>= <b>${intero(tot-entTot)}</b> di <u data-w="deficit">deficit</u> nel 2024</div>
+  <div class="f"><u data-w="debito">Debito pubblico</u> a fine 2024: <b>${intero(DEBITO)}</b></div>
+  <small>Fonte del debito: Banca d'Italia, «Finanza pubblica: fabbisogno e debito», dato di fine 2024 rivisto a febbraio 2026.</small>
+
+  <h4>Residenti</h4>
+  <div class="f"><b>${num(POP)}</b> persone al 1° gennaio 2025</div>
+  <small>Fonte: <u data-w="istat">ISTAT</u>, popolazione residente.</small>
+
+  <h4>I calcoli delle storie</h4>
+  <p>Ogni cifra «al giorno, a testa» è il totale diviso per i residenti e per 365 giorni.</p>
+  <div class="f">Spesa al giorno a testa<br>= ${intero(tot)} ÷ ${num(POP)} ÷ 365<br>= <b>${eur(day(tot))} €</b></div>
+  <div class="f">Pensioni al giorno a testa<br>= ${intero(V[0][2])} ÷ ${num(POP)} ÷ 365<br>= <b>${eur(day(V[0][2]))} €</b></div>
+  <div class="f">Spesa in un anno a testa<br>= ${intero(tot)} ÷ ${num(POP)}<br>= <b>${eur(tot*M/POP,0)} €</b></div>
+  <div class="f">Debito a testa<br>= ${intero(DEBITO)} ÷ ${num(POP)}<br>= <b>${eur(DEBITO*M/POP,0)} €</b></div>
+  <p>Le 100 monetine sono la parte di ogni voce sul totale della spesa, arrotondata. Nello scontrino ogni riga è arrotondata al centesimo e alcuni centesimi sono sistemati perché la somma torni con il totale.</p>
+
+  <h4>Fonti</h4>
+  <ul>
+    <li><a href="https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table" target="_blank" rel="noopener">Eurostat, gov_10a_exp</a>: spesa per funzione</li>
+    <li><a href="https://ec.europa.eu/eurostat/databrowser/view/gov_10a_main/default/table" target="_blank" rel="noopener">Eurostat, gov_10a_main</a>: entrate e spese totali</li>
+    <li><a href="https://www.bancaditalia.it/pubblicazioni/finanza-pubblica/" target="_blank" rel="noopener">Banca d'Italia, Finanza pubblica</a>: debito</li>
+    <li><a href="https://demo.istat.it/" target="_blank" rel="noopener">ISTAT, demografia</a>: residenti</li>
+  </ul>
+  <p>Quanto ci metti tu, partendo dal tuo stipendio, lo vedi sullo <a href="https://marvinbonazzo.github.io/scontrino-stipendio/">Scontrino dello Stipendio</a>.</p>`;
+
+const S = [...document.querySelectorAll(".slide")];
+const bars = document.getElementById("bars");
+bars.innerHTML = S.map(()=>"<i><b></b></i>").join("");
+const B = [...bars.children];
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let cur = -1;
+
+function count(el){
+  const n = +el.dataset.n, d = +(el.dataset.d||0);
+  if (still){ el.textContent = eur(n,d); return; }
+  const t0 = performance.now(), D = 900;
+  const f = now => { const x = Math.min(1,(now-t0)/D), e = 1-(1-x)**3;
+    el.textContent = eur(n*e,d); if (x<1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+function go(i){
+  i = Math.max(0,Math.min(S.length-1,i)); if (i===cur) return;
+  cur = i;
+  S.forEach((s,j)=>s.classList.toggle("on",j===i));
+  B.forEach((b,j)=>b.classList.toggle("done",j<=i));
+  S[i].querySelectorAll("[data-n]").forEach(count);
+  const rc = document.getElementById("rc");
+  rc.classList.remove("on-in"); if (i===S.length-1){ void rc.offsetWidth; rc.classList.add("on-in"); S[i].scrollTop = 0; }
+}
+/* Parole spiegate: stesso glossario dello Scontrino dello Stipendio, una o due frasi per un ragazzo delle medie.
+   Nel testo: <u data-w="chiave">parola</u>. Se aggiungi una parola tecnica nuova, aggiungi qui la sua spiegazione. */
 const GLOSS = {
-  inps:["INPS","L'ente pubblico che incassa i contributi di chi lavora e paga pensioni, malattia, maternità e gli aiuti a chi perde il lavoro."],
-  contributi:["Contributi","Soldi versati all'INPS per ogni persona che lavora: una parte la paga l'azienda, una parte viene tolta dallo stipendio. Pagano le pensioni di oggi."],
-  irpef:["IRPEF","Imposta sul reddito delle persone: la tassa su quello che guadagni lavorando o con la pensione. A un dipendente viene tolta ogni mese dalla busta paga."],
-  iva:["IVA","Imposta sul valore aggiunto: una tassa già compresa nel prezzo di quasi tutto quello che compri. In una felpa da 30 € con IVA al 22%, 5,41 € vanno allo Stato."],
-  accise:["Accise","Una tassa fissa su ogni litro o chilo di certi prodotti: benzina, gasolio, luce, gas, sigarette, alcolici. Non è una percentuale: resta uguale anche se il prezzo cambia."],
-  ires:["IRES","Imposta sul reddito delle società: la tassa sugli utili, cioè sui guadagni, delle aziende."],
-  irap:["IRAP","Imposta regionale sulle attività produttive: la pagano aziende ed enti sul valore di quello che producono. Serve soprattutto a pagare la sanità delle Regioni."],
-  imu:["IMU","Imposta su case, negozi e terreni, che va al Comune. Non si paga sulla casa dove si abita, tranne le case di lusso."],
-  tari:["TARI","La tassa sui rifiuti. La paga chi abita o lavora in un edificio, e serve a pagare raccolta e smaltimento."],
-  addizionale:["Addizionale IRPEF","Un piccolo pezzo di IRPEF in più che va alla Regione e al Comune dove vivi. La percentuale la decidono loro, entro i limiti della legge."],
-  lordo:["Lordo","Lo stipendio prima delle trattenute. È la cifra del contratto, ma non è quella che arriva sul conto."],
-  netto:["Netto","Quello che arriva davvero sul conto, dopo aver tolto contributi e tasse."],
-  deficit:["Deficit","Quando in un anno si spende più di quanto entra. La differenza si copre con nuovi prestiti, che fanno crescere il debito."],
-  avanzo:["Avanzo","Quando in un anno entra più di quanto si spende. È il contrario del deficit."],
-  debito:["Debito pubblico","Tutti i soldi che lo Stato ha preso in prestito negli anni e non ha ancora restituito. Ogni anno ci si pagano sopra gli interessi."],
-  btp:["BTP e BOT","Titoli di Stato: dei «pagherò» che lo Stato vende per farsi prestare soldi. Chi li compra presta soldi allo Stato e li riavrà indietro con gli interessi."],
-  interessi:["Interessi","Il prezzo di un prestito. Chi riceve soldi in prestito restituisce più di quanto ha avuto: la differenza sono gli interessi."],
-  superstiti:["Pensione ai superstiti","Quando muore una persona che prendeva la pensione, una parte passa al marito o alla moglie, o ai figli. Si chiama anche reversibilità."],
-  naspi:["NASpI","L'assegno mensile che l'INPS paga per un periodo a chi perde il lavoro senza averlo scelto."],
-  cassaint:["Cassa integrazione","Quando un'azienda è in crisi e riduce il lavoro, l'INPS paga ai dipendenti una parte dello stipendio."],
-  ticket:["Ticket","La parte del costo di una visita o di un esame che paghi tu. Il resto lo paga il Servizio sanitario."],
-  dividendi:["Dividendi","La parte di guadagni che un'azienda dà ai suoi proprietari. Lo Stato e i Comuni ne ricevono dalle società che possiedono, come Eni, Enel o le aziende dei trasporti locali."],
-  mutuo:["Mutuo","Un prestito lungo, da restituire a rate in molti anni, con gli interessi."],
-  cdp:["Cassa Depositi e Prestiti","Una società controllata dallo Stato che usa i risparmi dei libretti postali per prestare soldi a Comuni e Regioni."],
-  residenti:["Residenti","Le persone iscritte all'anagrafe di un Comune, cioè che ci vivono ufficialmente. Contano anche bambini e anziani."],
-  eurostat:["Eurostat","L'ufficio statistico dell'Unione europea. Raccoglie i conti pubblici di tutti i Paesi UE con le stesse regole, così si possono confrontare."],
-  istat:["ISTAT","L'Istituto nazionale di statistica: conta gli abitanti, misura i prezzi e prepara i conti pubblici dell'Italia."],
-  cofog:["COFOG","Il modo, uguale in tutta Europa, di dividere la spesa pubblica in grandi capitoli: sanità, scuola, difesa, pensioni e così via."],
-  siope:["SIOPE","Il sistema che registra ogni pagamento e ogni incasso degli enti pubblici, mentre passa dalla loro banca. Lo gestiscono la Ragioneria dello Stato e la Banca d'Italia."],
-  partitegiro:["Partite di giro","Soldi che passano dal Comune senza essere suoi. Per esempio le tasse trattenute ai dipendenti comunali: il Comune le incassa e le gira subito allo Stato."]
+  spesa: ["Spesa pubblica", "Tutti i soldi che Stato, Regioni, Comuni e INPS spendono in un anno: pensioni, ospedali, scuole, strade e tutto il resto."],
+  residenti: ["Residenti", "Le persone iscritte all'anagrafe di un Comune, cioè che ci vivono ufficialmente. Contano anche bambini e anziani."],
+  contributi: ["Contributi", "Soldi versati all'INPS per chi lavora. Una parte la paga l'azienda, una parte viene tolta dallo stipendio. Servono per pensioni, malattia e periodi senza lavoro."],
+  irpef: ["IRPEF", "Imposta sul Reddito delle Persone Fisiche: la tassa principale su quello che si guadagna. A chi lavora come dipendente viene tolta ogni mese dalla busta paga."],
+  iva: ["IVA", "Imposta sul Valore Aggiunto: una tassa già compresa nel prezzo di quasi tutto quello che si compra. Il negozio la incassa e la gira allo Stato."],
+  accise: ["Accise", "Una tassa fissa su ogni litro o chilo di certi prodotti: benzina, gasolio, luce, gas, sigarette, alcolici. Resta uguale anche se il prezzo cambia."],
+  irap: ["IRAP", "Una tassa che pagano aziende ed enti sul valore di quello che producono. Serve soprattutto a pagare la sanità delle Regioni."],
+  imu: ["IMU", "La tassa su case, negozi e terreni, che va al Comune. Non si paga sulla casa dove si abita."],
+  ires: ["IRES", "La tassa sui guadagni delle aziende."],
+  assegno: ["Assegno unico", "Soldi che lo Stato dà ogni mese alle famiglie per ogni figlio, di più a chi guadagna meno."],
+  naspi: ["NASpI", "L'assegno mensile che l'INPS paga per un periodo a chi perde il lavoro senza averlo scelto."],
+  interessi: ["Interessi", "Il prezzo di un prestito: chi riceve soldi in prestito restituisce più di quanto ha avuto. La differenza sono gli interessi."],
+  debito: ["Debito pubblico", "Tutti i soldi che lo Stato ha preso in prestito negli anni e non ha ancora restituito. Ogni anno ci si pagano sopra gli interessi."],
+  deficit: ["Deficit", "Quando in un anno si spende più di quanto entra. La differenza si prende in prestito, e il debito cresce."],
+  btp: ["BTP e BOT", "Titoli di Stato: dei «pagherò» che lo Stato vende per farsi prestare soldi. Chi li compra presta soldi allo Stato e li riavrà indietro con gli interessi."],
+  eurostat: ["Eurostat", "L'ufficio statistico dell'Unione europea. Raccoglie i conti di tutti i Paesi con le stesse regole, così si possono confrontare."],
+  cofog: ["COFOG", "Il modo, uguale in tutta Europa, di dividere la spesa pubblica in grandi capitoli: sanità, scuola, difesa, pensioni e così via."],
+  istat: ["ISTAT", "L'Istituto nazionale di statistica: conta gli abitanti e prepara i conti pubblici dell'Italia."]
 };
-const W = (k, t) => `<u data-w="${k}">${t || GLOSS[k][0]}</u>`;
-function openGloss(u){
+const sheet = document.getElementById("sheet");
+document.querySelectorAll("u[data-w]").forEach(u=>{ u.setAttribute("role","button"); u.tabIndex = 0; u.setAttribute("aria-label", `${u.textContent}: cosa vuol dire`); });
+function explain(u){
   const g = GLOSS[u.dataset.w]; if (!g) return;
-  $("gl-t").textContent = g[0]; $("gl-p").textContent = g[1]; $("gl").hidden = false;
+  document.getElementById("sh-t").textContent = g[0]; document.getElementById("sh-p").textContent = g[1];
+  sheet.hidden = false; document.getElementById("sh-ok").focus({preventScroll:true});
 }
-const closeGloss = () => { $("gl").hidden = true; };
-$("gl-x").addEventListener("click", closeGloss);
-// In fase di cattura: la parola dentro un elenco a fisarmonica non deve aprirlo o chiuderlo
-document.addEventListener("click", e=>{
+const closeSheet = () => { sheet.hidden = true; };
+// In fase di cattura: toccare una parola apre la spiegazione, toccare altrove chiude il cartoncino. In entrambi i casi la storia non avanza
+document.getElementById("ph").addEventListener("click",e=>{
   const u = e.target.closest("u[data-w]");
-  if (u){ e.preventDefault(); e.stopPropagation(); openGloss(u); }
-  else if (!e.target.closest("#gl")) closeGloss();
+  if (u){ e.stopPropagation(); e.preventDefault(); explain(u); return; }
+  if (!sheet.hidden){ e.stopPropagation(); e.preventDefault(); closeSheet(); }
 }, true);
-document.addEventListener("keydown", e=>{
-  const u = e.target.closest && e.target.closest("u[data-w]");
-  if (u && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); openGloss(u); }
-  if (e.key==="Escape") closeGloss();
+document.getElementById("ph").addEventListener("click",e=>{
+  if (e.target.closest("button,a")) return;
+  if (cur===S.length-1 && !e.target.closest(".bars")) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  go(e.clientX - r.left < r.width*.3 ? cur-1 : cur+1);
 });
-// Ogni parola spiegata, anche quelle create dopo, si raggiunge con il tasto Tab
-const prepW = () => document.querySelectorAll("u[data-w]:not([tabindex])").forEach(u=>{ u.tabIndex = 0; u.setAttribute("role","button"); });
-prepW();
-new MutationObserver(prepW).observe(document.body, {childList:true, subtree:true});
-
-/* Italia: spesa per funzione 2024 (Eurostat COFOG) ed entrate 2024 (Eurostat), in euro. Debito: Banca d'Italia, fine 2024 */
-const ITALIA = {
-  name:"Italia", where:"Italia · anno 2024", pop:58934177, debt:2966900*M,
-  title:"Quanto ha speso il settore pubblico per ogni residente",
-  explain:t=>`Nel 2024 Stato, Regioni, Comuni e ${W("inps","INPS")} hanno speso <b>${fmt(t)}</b> per ogni persona che vive in Italia, neonati e pensionati compresi. Non è quanto paghi tu: è la spesa pubblica totale divisa per i ${W("residenti","residenti")}. Quanto ci metti tu lo calcoli con lo <a href="${STIPENDIO}">Scontrino delle tasse</a>.`,
-  s1l:"spesi in tutto", s3k:"Pensioni", s3l:"vanno alle pensioni",
-  hOut:"Tocca una voce per vedere da cosa è fatta.",
-  hIn:"Le entrate pubbliche dello stesso anno, divise per residente. Tocca una voce per vedere come la paghi tu.",
-  gap:"Differenza, coperta con nuovo debito",
-  surplus:"Avanzo",
-  steps:["Leggo i conti pubblici Eurostat 2024","Sommo Stato, Regioni, Comuni e INPS","Divido la spesa per funzione","Divido per 58,9 milioni di residenti"],
-  why:`Perché il 2024 e non il 2025? È l'ultimo anno con la spesa divisa per voce. ${W("eurostat","Eurostat")} deve raccogliere e controllare i conti di migliaia di enti pubblici, e li pubblica più di un anno dopo: il 2025 uscirà a inizio 2027.`,
-  notes:`<p>Fonte: ${W("eurostat","Eurostat")}, spesa delle amministrazioni pubbliche per funzione (${W("cofog","COFOG")}) e conti delle entrate, anno 2024, l'ultimo con il dettaglio per voce. Debito pubblico: Banca d'Italia, fine 2024. Residenti: ${W("istat","ISTAT")} al 1° gennaio 2025.</p>`,
-  gTitle:"Perché i conti non tornano",
-  facts:c=>{
-    const get = k => (c.out.find(x=>x.k===k) || c.inn.find(x=>x.k===k)).t;
-    return [
-      ["1","Si spende più di quanto entra",
-        `Nel 2024 sono usciti <b>${big(c.totEur)}</b> e ne sono entrati <b>${big(c.inEur)}</b>. Per ogni 100 € incassati se ne sono spesi ${Math.round(c.totEur/c.inEur*100)}. Mancano <b>${big(c.totEur-c.inEur)}</b>, cioè <b>${fmt(c.diff)}</b> per residente: è il ${W("deficit","deficit")}.`],
-      ["2","La differenza si prende in prestito",
-        `Lo Stato vende ${W("btp","BTP e BOT")}: chi li compra, cioè famiglie, banche e fondi di tutto il mondo, gli presta soldi e li riavrà indietro con gli ${W("interessi","interessi")}. È come pagare con la carta di credito. Anno dopo anno i prestiti si sommano: a fine 2024 il ${W("debito","debito pubblico")} era <b>${big(ITALIA.debt)}</b>, circa <b>${fmt(ITALIA.debt/c.pop)}</b> per residente.`],
-      ["3","Gli interessi costano quasi quanto la scuola",
-        `Solo di interessi sul debito nel 2024 si sono pagati <b>${big(get("Interessi sul debito"))}</b>. Per tutta l'istruzione, dall'asilo all'università, <b>${big(get("Istruzione"))}</b>. Gli interessi vanno pagati ogni anno, come la rata di un prestito.`],
-      ["4","I contributi non bastano per le pensioni",
-        `Aziende e lavoratori hanno versato <b>${big(get("Contributi sociali"))}</b> di ${W("contributi","contributi")}. Le sole pensioni sono costate <b>${big(get("Pensioni"))}</b>. Le pensioni di oggi si pagano con i contributi di chi lavora oggi: quando i pensionati sono tanti rispetto a chi lavora, il resto arriva dalle altre tasse. Anche chi non lavora ancora ci mette qualcosa, con l'IVA di ogni acquisto.`]
-    ];
-  },
-  out:[
-    {k:"Pensioni", d:`Le pensioni di vecchiaia, cioè di chi ha smesso di lavorare per età, e quelle ai ${W("superstiti","superstiti")}: vedove, vedovi e orfani di un pensionato.`, t:359572*M, i:[["Vecchiaia",306359*M],["Superstiti",53213*M]]},
-    {k:"Sanità", d:"Ospedali, medici di base, visite specialistiche, farmaci e prevenzione.", t:146075*M, i:[["Ospedali",60251*M],["Medici di base e visite",53805*M],["Farmaci e apparecchi",20337*M],["Prevenzione",6748*M],["Ricerca e altro",4934*M]]},
-    {k:"Sussidi e assistenza", d:`Aiuti a chi è malato o invalido, alle famiglie con figli, a chi perde il lavoro (come la ${W("naspi","NASpI")} e la ${W("cassaint","cassa integrazione")}) e a chi è in povertà.`, t:108563*M, i:[["Invalidità e malattia",37782*M],["Famiglie e figli",32266*M],["Disoccupazione",20257*M],["Povertà",14982*M],["Casa e altro",3276*M]]},
-    {k:"Istruzione", d:"Scuole dall'infanzia alle superiori, università e servizi come mense e trasporti scolastici.", t:89180*M, i:[["Scuola secondaria",39545*M],["Infanzia e primaria",30977*M],["Università",9144*M],["Mense e servizi",4869*M],["Altro",4645*M]]},
-    {k:"Interessi sul debito", d:`Quello che si paga ogni anno a chi ha prestato soldi allo Stato comprando ${W("btp","titoli come BTP e BOT")}. È il prezzo del ${W("debito","debito")} accumulato negli anni.`, t:87789*M, i:[["Interessi sul debito pubblico",87789*M]]},
-    {k:"Funzionamento dello Stato", d:"Parlamento, governo, ministeri, riscossione delle tasse, rapporti con l'estero e ricerca di base.", t:82625*M, i:[["Governo, fisco ed esteri",43344*M],["Servizi generali",20816*M],["Ricerca di base",12757*M],["Aiuti ad altri Paesi",1488*M],["Altro",4220*M]]},
-    {k:"Aiuti all'economia", d:"Incentivi alle imprese, politiche del lavoro, energia, industria e agricoltura.", t:60557*M, i:[["Lavoro e commercio",18047*M],["Energia",13272*M],["Industria e costruzioni",11750*M],["Ricerca",6137*M],["Agricoltura",5600*M],["Altro",5751*M]]},
-    {k:"Trasporti", d:"Strade, autostrade, ferrovie, trasporto pubblico locale, porti e aeroporti.", t:51824*M, i:[["Trasporti",51824*M]]},
-    {k:"Sicurezza e giustizia", d:"Polizia, vigili del fuoco, tribunali e carceri.", t:39094*M, i:[["Polizia",22493*M],["Tribunali",7762*M],["Vigili del fuoco",4658*M],["Carceri",3960*M],["Altro",221*M]]},
-    {k:"Difesa", d:"Forze armate e missioni militari.", t:28301*M, i:[["Forze armate",25940*M],["Aiuti militari all'estero",1572*M],["Altro",789*M]]},
-    {k:"Ambiente", d:"Rifiuti, depurazione delle acque, inquinamento e tutela del paesaggio.", t:19828*M, i:[["Rifiuti",11632*M],["Natura e paesaggio",3060*M],["Inquinamento",1843*M],["Ricerca",1811*M],["Acque reflue",1053*M],["Altro",429*M]]},
-    {k:"Cultura e sport", d:"Musei, biblioteche, impianti sportivi, televisione pubblica ed editoria.", t:18774*M, i:[["Cultura",7612*M],["Sport e tempo libero",6689*M],["Radio, TV ed editoria",3234*M],["Culto",1051*M],["Altro",188*M]]},
-    {k:"Casa e territorio", d:"Case popolari, sviluppo urbano, illuminazione delle strade e acquedotti.", t:16973*M, i:[["Edilizia pubblica",8334*M],["Sviluppo urbano",4444*M],["Illuminazione pubblica",2359*M],["Acqua",1713*M],["Altro",122*M]]}
-  ],
-  inn:[
-    {k:"Contributi sociali", d:`I ${W("contributi","contributi")} per pensioni, malattia, maternità e disoccupazione, versati all'${W("inps","INPS")} da aziende e lavoratori.`, t:278140*M, i:[["Pagati dalle aziende",189097*M],["Pagati dai lavoratori",84744*M],["Altri",4299*M]],
-      you:`Dal tuo stipendio. In media l'azienda versa circa il 30% del tuo ${W("lordo","lordo")} in più, sopra lo stipendio, e il 9,19% ti viene tolto dalla busta paga. <a href="${STIPENDIO}">Calcola i tuoi</a>`},
-    {k:"IRPEF", d:`L'${W("irpef","imposta sul reddito")} delle persone: dipendenti, pensionati, lavoratori autonomi. Comprende le ${W("addizionale","addizionali")} di Regioni e Comuni.`, t:273638*M, i:[["Imposte sui redditi delle persone",273638*M]],
-      you:`Se sei dipendente, l'azienda la toglie ogni mese dalla busta paga e la versa per te. Più guadagni, più alta è la percentuale. <a href="${STIPENDIO}">Calcola la tua</a>`},
-    {k:"IVA", d:`L'${W("iva","IVA")}, inclusa nel prezzo di quasi tutto quello che compri.`, t:145187*M, i:[["IVA",145187*M]],
-      you:"Ogni volta che paghi qualcosa, a qualsiasi età. In una felpa da 30 € con IVA al 22% ci sono 5,41 € di IVA."},
-    {k:"Accise e altre imposte sui consumi", d:`${W("accise","Accise")} su carburanti, luce, gas, tabacchi e alcolici, imposta di bollo e altre imposte sui prodotti.`, t:99042*M, i:[["Imposte sui prodotti, IVA esclusa",99042*M]],
-      you:"Nel prezzo del pieno di benzina, nella bolletta di luce e gas, nel pacchetto di sigarette. Non sono scritte a parte: sono già dentro il prezzo."},
-    {k:"IRAP, IMU e simili", d:`Imposte legate alla produzione e agli immobili, come l'${W("irap","IRAP")} e l'${W("imu","IMU")}.`, t:65371*M, i:[["Altre imposte sulla produzione",65371*M]],
-      you:"L'IRAP la pagano le aziende. L'IMU la paga al Comune chi ha una seconda casa, un negozio o un terreno."},
-    {k:"IRES", d:`L'${W("ires","IRES")}, l'imposta sugli utili delle società.`, t:58665*M, i:[["Imposte sugli utili delle imprese",58665*M]],
-      you:"La pagano le società sui guadagni dell'anno, non le persone."},
-    {k:"Servizi pagati dai cittadini", d:`${W("ticket","Ticket")} sanitari, rette, tariffe e altri servizi che le amministrazioni vendono.`, t:51753*M, i:[["Vendita di servizi",51753*M]],
-      you:"Quando paghi il ticket di una visita, la retta dell'asilo nido, l'ingresso a un museo pubblico."},
-    {k:"Trasferimenti e fondi UE", d:"Soldi in arrivo da altri soggetti, compresi i fondi dell'Unione europea.", t:34434*M, i:[["Dall'Unione europea",9451*M],["Altri trasferimenti",24983*M]]},
-    {k:"Rendite e interessi", d:`Interessi incassati, affitti di beni pubblici e ${W("dividendi","dividendi")} delle società di proprietà pubblica.`, t:16729*M, i:[["Interessi",5944*M],["Affitti",5117*M],["Dividendi",4315*M],["Altro",1353*M]]},
-    {k:"Altre imposte", d:"Imposte sul patrimonio, su eredità e donazioni, altre imposte sul reddito.", t:13066*M, i:[["Altre imposte",13066*M]]}
-  ]
-};
-
-/* Comuni: SIOPE, ultimi 12 mesi chiusi (ottobre 2025 – settembre 2026). Ordine delle voci uguale al file comuni-12mesi.json */
-const C_OUT = [
-  ["Personale",`Gli stipendi dei dipendenti del Comune, con i ${W("contributi","contributi")} che il Comune versa all'INPS sopra lo stipendio.`],
-  ["Rifiuti","Raccolta, pulizia delle strade e smaltimento dei rifiuti."],
-  ["Strade","Lavori su strade, piazze e infrastrutture."],
-  ["Trasporti","Trasporto pubblico, scolastico e per disabili, acquisto di mezzi."],
-  ["Spese non specificate","Pagamenti registrati come \u201caltri servizi diversi\u201d o \u201caltre spese\u201d senza dettaglio. Da questi dati non si vede cosa contengono: il dettaglio è solo negli atti del Comune."],
-  ["Sociale e nidi","Assistenza ad anziani, disabili e persone in difficoltà, sussidi alle famiglie, asili nido."],
-  ["Sport e cultura","Impianti sportivi, musei, teatri, biblioteche ed edifici storici."],
-  ["Case ed edifici","Case popolari, edifici comunali e cimiteri."],
-  ["Luce e utenze","Illuminazione delle strade e bollette degli edifici comunali."],
-  ["Scuole e mense","Edifici scolastici, mense e servizi per le scuole."],
-  ["Debito",`Rate dei ${W("mutuo","mutui")} presi negli anni passati, con gli ${W("interessi","interessi")}.`],
-  ["Contributi ad altri enti","Soldi dati a imprese, associazioni, Regione e altri enti."],
-  ["Manutenzioni","Riparazioni ordinarie di edifici, impianti e mezzi."],
-  ["Informatica","Software, sistemi, licenze e computer degli uffici."],
-  ["Tasse pagate dal Comune",`Anche il Comune paga imposte: soprattutto l'${W("irap","IRAP")} sugli stipendi e l'${W("iva","IVA")}.`],
-  ["Politica","Indennità di sindaco e assessori, gettoni dei consiglieri, revisori dei conti."],
-  ["Altri servizi in appalto","Servizi pubblici affidati a ditte esterne e non elencati nelle altre voci, come parcheggi a pagamento, servizio idrico e canili."],
-  ["Consulenze e professionisti","Architetti, ingegneri, consulenti e altri professionisti esterni, compresi i progetti delle opere pubbliche e il personale interinale."],
-  ["Cause e risarcimenti","Avvocati, spese legali, cause perse e risarcimenti dei danni."],
-  ["Pulizie e vigilanza","Pulizia degli uffici, sorveglianza, custodia e altri servizi ausiliari."],
-  ["Verde e terreni","Cura del verde pubblico e acquisto di terreni."],
-  ["Riscossione delle tasse","Il compenso alle società che riscuotono tasse e multe per il Comune."],
-  ["Materiali e attrezzature","Cancelleria, vestiario, carburante, alimenti, mobili, macchinari e attrezzature."],
-  ["Eventi e comunicazione","Manifestazioni, convegni, mostre e pubblicità."],
-  ["Assicurazioni","Le polizze su edifici, mezzi e responsabilità civile."],
-  ["Rimborsi restituiti","Tasse e somme incassate per errore o in eccesso, restituite a cittadini, imprese ed enti."],
-  ["Posta, banca e amministrazione","Spese postali, servizio di tesoreria della banca, quote associative, spese per le elezioni."],
-  ["Altre spese varie","Voci piccole che non rientrano altrove: ristorazione, servizi sanitari, formazione del personale, trasferimenti interni."],
-  ["Affitti e noleggi","Affitti di locali, noleggi di macchinari e canoni per opere in partenariato con privati."]
-];
-const C_IN = [
-  ["Stato","Contributi e trasferimenti dai ministeri e dai fondi nazionali, cioè dalle tasse di tutti gli italiani."],
-  ["Servizi e beni del Comune","Suolo pubblico, affitti di immobili comunali, permessi di costruire, musei, mense, nidi."],
-  ["IMU",`L'${W("imu","IMU")}, imposta su case, negozi e terreni. Non si paga sulla casa dove si abita.`],
-  ["Regione e altri enti locali","Contributi della Regione, della Provincia, di altri Comuni e consorzi per opere e servizi."],
-  ["TARI",`La ${W("tari","TARI")}, tassa sui rifiuti, pagata da famiglie e attività.`],
-  ["Imposta di soggiorno","La pagano i turisti per ogni notte passata in città."],
-  ["Multe","Soprattutto multe per le infrazioni stradali."],
-  ["Addizionale IRPEF",`L'${W("addizionale","addizionale")}: la parte di ${W("irpef","IRPEF")} che va al Comune, trattenuta in busta paga o sulla pensione a chi ci abita. Lo Scontrino delle tasse non la conta, perché cambia da Comune a Comune: è qui.`],
-  ["Altre entrate varie","Voci piccole: condoni edilizi, indennizzi delle assicurazioni, trasferimenti da INPS e famiglie."],
-  ["Nuovi prestiti",`${W("mutuo","Mutui")} presi in banca o dalla ${W("cdp","Cassa Depositi e Prestiti")}, per pagare opere pubbliche. Andranno restituiti negli anni.`],
-  ["Vendita di beni","Case, terreni e altri beni del Comune venduti."],
-  ["Interessi e dividendi",`${W("dividendi","Dividendi")} delle società di cui il Comune è socio e interessi sui conti.`],
-  ["Rimborsi ricevuti","Soldi restituiti al Comune, per esempio per personale prestato ad altri enti o IVA a credito."],
-  ["Fondi europei","Contributi dell'Unione europea per progetti e opere."],
-  ["Altre imposte","Imposte minori o arretrate, come la vecchia ICI recuperata con i controlli e i proventi dei casinò."],
-  ["Contributi di imprese e privati","Soldi dati al Comune da aziende, fondazioni e associazioni per opere o servizi."],
-  ["Entrate non specificate","Incassi registrati come \u201caltre entrate\u201d senza dettaglio."]
-];
-let COMUNI = null, AVG = null;
-
-function comuneData(r){
-  const [n,p,reg,pop,o,i,go,gi,fo,fi] = r;
-  const nice = n.toLowerCase().replace(/(^|[\s'\-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
-  return {
-    name:nice, where:`Comune di ${nice} · ${p} · ottobre 2025 – settembre 2026`, pop, comune:true,
-    title:"Quanto ha speso il Comune per ogni residente",
-    why:"Perché questi mesi? Sono gli ultimi 12 mesi chiusi. SIOPE pubblica i pagamenti dei Comuni ogni mese, e ottobre 2026 non è ancora finito.",
-    explain:t=>`Negli ultimi 12 mesi il Comune di ${nice} ha speso <b>${fmt(t)}</b> per ogni persona che ci vive. Non è quanto paghi tu: è la spesa del Comune divisa per i ${W("residenti","residenti")}. Ed è solo una parte: scuola, ospedali e pensioni li pagano Stato, Regione e INPS.`,
-    s1l:"spesi in tutto", s3k:"Personale", s3l:"vanno agli stipendi del personale",
-    hOut:"Tocca una voce per vedere il totale e la media dei Comuni italiani.",
-    hIn:"Le entrate del Comune nello stesso anno, divise per residente.",
-    gap:"Differenza, coperta con la cassa degli anni passati",
-    surplus:"Avanzo, rimasto in cassa",
-    steps:["Leggo gli ultimi 12 mesi di pagamenti SIOPE",`Filtro il Comune di ${nice}`,"Tolgo soldi di passaggio e movimenti finanziari",`Divido per ${pop.toLocaleString("it-IT")} residenti`],
-    gTitle:"Perché entrate e uscite non sono uguali",
-    facts:c=>[
-      ["1","Un Comune non può fare debito per le spese di ogni giorno",
-        `La legge permette ai Comuni di chiedere prestiti (${W("mutuo","mutui")}) solo per costruire o rifare opere: scuole, strade, edifici. Stipendi, rifiuti e bollette vanno pagati con le entrate.`],
-      c.diff > 0
-        ? ["2","In questi 12 mesi ha pagato di più",
-            `Il Comune ha pagato <b>${fmt(c.diff)}</b> per residente più di quanto ha incassato. Ha usato soldi entrati negli anni prima e rimasti in cassa, spesso già destinati a lavori.`]
-        : ["2","In questi 12 mesi ha incassato di più",
-            `Il Comune ha incassato <b>${fmt(-c.diff)}</b> per residente più di quanto ha pagato. Restano in cassa: spesso servono per lavori già decisi ma non ancora pagati.`],
-      ["3","Si contano i pagamenti veri",
-        `Questi sono i soldi passati davvero dalla banca del Comune. Una spesa decisa a dicembre può essere pagata a marzo: per questo un periodo può sembrare in rosso e quello dopo in attivo.`],
-      ["4","Dove entra il tuo stipendio",
-        `Il grosso delle tasse va allo Stato, che poi ne manda una parte ai Comuni: è la voce «Stato» tra le entrate. Se vivi qui, al Comune va direttamente solo una piccola parte della tua IRPEF: l'${W("addizionale","addizionale comunale")}, se il Comune l'ha decisa.`]
-    ],
-    notes:`<p>Dallo scontrino sono esclusi <b class="mono">${fmt(go/pop)}</b> per residente di ${W("partitegiro","soldi di passaggio")}: ritenute e IVA che il Comune incassa e gira subito allo Stato.</p>
-      <p>Sono esclusi anche <b class="mono">${fmt(fo/pop)}</b> di movimenti finanziari: anticipi di cassa restituiti alla banca, soldi spostati su conti deposito o in titoli. Non sono spesa: è come spostare soldi dal conto corrente al libretto di risparmio.</p>
-      <p>Fonte: pagamenti e incassi di cassa ${W("siope","SIOPE")} (<a href="https://www.siope.it" target="_blank" rel="noopener">siope.it</a>, Ragioneria Generale dello Stato e Banca d'Italia), da ottobre 2025 a settembre 2026. Raggruppamento delle voci a cura di questo scontrino. Residenti secondo l'anagrafica SIOPE.</p>`,
-    out:C_OUT.map(([k,d],j)=>({k,d,t:o[j],avg:AVG.o[j]})).filter(x=>x.t>0),
-    inn:C_IN.map(([k,d],j)=>({k,d,t:i[j],avg:AVG.i[j]})).filter(x=>x.t>0)
-  };
+document.getElementById("again").addEventListener("click",()=>go(0));
+const info = document.getElementById("info");
+document.getElementById("info-open").addEventListener("click",()=>{ info.hidden = false; info.scrollTop = 0; document.getElementById("info-x").focus({preventScroll:true}); });
+document.getElementById("info-x").addEventListener("click",()=>{ info.hidden = true; document.getElementById("info-open").focus({preventScroll:true}); });
+addEventListener("keydown",e=>{
+  if (!sheet.hidden && (e.key==="Escape" || e.key.startsWith("Arrow") || e.key===" ")){ e.preventDefault(); closeSheet(); return; }
+  const u = e.target.closest && e.target.closest("u[data-w]");
+  if (u && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); explain(u); return; }
+  if (!info.hidden){ if (e.key==="Escape"){ info.hidden = true; document.getElementById("info-open").focus({preventScroll:true}); } return; }
+  if (e.key==="ArrowRight"||e.key===" ") { e.preventDefault(); go(cur+1); }
+  if (e.key==="ArrowLeft") go(cur-1);
+});
+go(0);
 }
-
-function roundTo(list,pop){
-  const raw = list.map(x=>x.t/pop), flo = raw.map(Math.floor);
-  let left = Math.round(raw.reduce((a,b)=>a+b,0)) - flo.reduce((a,b)=>a+b,0);
-  raw.map((v,i)=>[v-flo[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{ if(left>0){flo[i]++;left--;} });
-  return flo;
-}
-function show(id){ ["s-intro","s-load","s-res"].forEach(s=>$(s).hidden = s!==id); window.scrollTo({top:0}); }
-
-let timer = null;
-function printAndShow(D){
-  show("s-load");
-  $("steps").innerHTML = D.steps.map(s=>`<div class="step"><span class="ic"></span><span>${s}</span></div>`).join("");
-  const els = [...document.querySelectorAll(".step")];
-  const DUR = reduce ? 400 : 3200;
-  $("arc").setAttribute("stroke-dashoffset","276.46"); $("check").setAttribute("hidden",""); $("pct").hidden=false; $("pct").textContent="0%";
-  cancelAnimationFrame(timer);
-  const t0 = performance.now();
-  const frame = now => {
-    const k = Math.min(1,(now-t0)/DUR), e = k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;
-    $("pct").textContent = Math.round(e*100)+"%";
-    $("arc").setAttribute("stroke-dashoffset",(276.46*(1-e)).toFixed(2));
-    const idx = Math.min(els.length-1, Math.floor(e*els.length));
-    els.forEach((el,j)=>{ el.classList.toggle("done", j<idx || k===1); el.classList.toggle("run", j===idx && k<1); });
-    if (k<1) timer = requestAnimationFrame(frame);
-    else { $("pct").hidden=true; $("check").removeAttribute("hidden"); setTimeout(()=>{ render(D); show("s-res"); }, reduce?150:800); }
-  };
-  timer = requestAnimationFrame(frame);
-}
-
-function list(el, data, per, totPer, colorOf, pop){
-  const max = Math.max(...per, 1);
-  el.innerHTML = data.map((x,i)=>{
-    const pc = (per[i]/(totPer||1)*100).toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1});
-    const col = colorOf(x,i);
-    let body = `<p class="sdesc">${x.d}</p>`;
-    if (x.i) body += `<div class="items"><span>In tutto ${big(x.t)} · da cosa è fatta</span>${x.i.map(([n,v])=>`<div class="it"><span>${n}</span><b>${big(v)}</b><small>${fmt(v/pop)}</small></div>`).join("")}</div>`;
-    if (x.you) body += `<p class="you"><span>Come la paghi tu</span>${x.you}</p>`;
-    if (!x.i) body += `<p class="cmp">In tutto <b>${big(x.t)}</b> · media dei Comuni italiani <b>${fmt(x.avg)}</b> per residente</p>`;
-    return `<details class="voce"><summary><span class="stripe" style="background:var(${col})"></span>
-      <span class="ttl"><span>${x.k}</span><span class="mbar"><span style="width:${per[i]/max*100}%;background:var(${col})"></span></span></span>
-      <span class="pc">${pc}%</span><span class="amt">${fmt(per[i])}</span><span class="chev" aria-hidden="true"></span></summary>
-      <div class="body">${body}</div></details>`;
-  }).join("");
-}
-
-let current = ITALIA;
-function render(D){
-  current = D;
-  const out = [...D.out].sort((a,b)=>b.t-a.t), inn = [...D.inn].sort((a,b)=>b.t-a.t);
-  const perOut = roundTo(out,D.pop), totOut = perOut.reduce((a,b)=>a+b,0);
-  const perIn = roundTo(inn,D.pop), totIn = perIn.reduce((a,b)=>a+b,0);
-  const totEur = out.reduce((a,x)=>a+x.t,0);
-  const colorOf = (x,i) => i<6 ? PAL[i] : "--rest";
-  const rank = new Map(out.map((x,i)=>[x.k,i]));
-
-  $("r-where").textContent = D.where;
-  $("again").textContent = D.comune ? "Cambia Comune" : "Ricomincia";
-  $("toItaly").hidden = !D.comune;
-  $("m-title").textContent = D.comune ? "Un altro Comune?" : "E il tuo Comune?";
-  $("r-title").textContent = D.title;
-  $("r-hero").textContent = fmt(totOut);
-  $("r-explain").innerHTML = D.explain(totOut);
-  $("r-why").innerHTML = D.why;
-  $("s-1").textContent = big(totEur); $("s-1l").textContent = D.s1l;
-  $("s-2").textContent = "≈ " + fmt(Math.round(totOut/12/10)*10);
-  const s3 = out.findIndex(x=>x.k===D.s3k);
-  $("s-3").textContent = fmt(s3>=0 ? perOut[s3] : 0); $("s-3l").textContent = D.s3l;
-  $("t-out").textContent = fmt(totOut);
-  $("h-out").textContent = D.hOut; $("h-in").textContent = D.hIn;
-  $("notes").innerHTML = D.notes;
-
-  const top = out.slice(0,6).map((x,i)=>[x.k, perOut[i], PAL[i]]);
-  const rest = totOut - top.reduce((a,s)=>a+s[1],0);
-  if (rest > 0) top.push([`Tutto il resto (${out.slice(6).map(x=>x.k).join(", ")})`, rest, "--rest"]);
-  const pct = v => Math.round(v/(totOut||1)*100);
-  const bar = $("bar"), tip = $("tip");
-  bar.innerHTML = top.map((s,i)=>`<button type="button" class="seg" data-i="${i}" aria-label="${s[0]}: ${fmt(s[1])}, ${pct(s[1])}%" style="width:${s[1]/(totOut||1)*100}%;background:var(${s[2]});animation-delay:${i*90}ms"></button>`).join("");
-  $("legend").innerHTML = top.map((s,i)=>`<button type="button" data-i="${i}"><i style="background:var(${s[2]})"></i>${s[0]} <span class="mono">${fmt(s[1])}</span></button>`).join("");
-  const showSeg = i => {
-    const el = bar.querySelector(`.seg[data-i="${i}"]`); if (!el) return;
-    bar.querySelectorAll(".seg").forEach(x=>x.classList.toggle("on", x===el)); bar.classList.add("hovering");
-    tip.innerHTML = `${top[i][0]}: <b>${fmt(top[i][1])}</b> · <b>${pct(top[i][1])}%</b>`; tip.hidden = false;
-    const w = bar.parentElement.getBoundingClientRect(), r = el.getBoundingClientRect(), tw = tip.offsetWidth;
-    tip.style.left = Math.min(Math.max(r.left-w.left+r.width/2, tw/2), w.width-tw/2) + "px";
-  };
-  const hideSeg = () => { bar.classList.remove("hovering"); bar.querySelectorAll(".seg").forEach(x=>x.classList.remove("on")); tip.hidden = true; };
-  bar.querySelectorAll(".seg").forEach(el=>{ const i=+el.dataset.i; ["mouseenter","focus","click"].forEach(ev=>el.addEventListener(ev,()=>showSeg(i))); });
-  bar.onmouseleave = hideSeg;
-  bar.onfocusout = e=>{ if(!bar.contains(e.relatedTarget)) hideSeg(); };
-  $("legend").querySelectorAll("button").forEach(b=>{ b.addEventListener("mouseenter",()=>showSeg(+b.dataset.i)); b.addEventListener("mouseleave",hideSeg); b.addEventListener("click",()=>showSeg(+b.dataset.i)); });
-
-  list($("out"), out, perOut, totOut, colorOf, D.pop);
-  $("out").insertAdjacentHTML("beforeend", `<div class="subtotal"><span>Totale speso per residente</span><span>${fmt(totOut)}</span></div>`);
-  list($("in"), inn, perIn, totIn, () => "--in", D.pop);
-  const diff = totOut - totIn;
-  $("in").insertAdjacentHTML("beforeend",
-    `<div class="subtotal"><span>Totale incassato per residente</span><span>${fmt(totIn)}</span></div>` +
-    (diff !== 0 ? `<div class="subtotal gap"><span>${diff>0 ? D.gap : D.surplus}</span><span>${fmt(Math.abs(diff))}</span></div>` : ""));
-
-  const inEur = inn.reduce((a,x)=>a+x.t,0);
-  $("g-title").textContent = D.gTitle;
-  $("facts").innerHTML = D.facts({out, inn, totEur, inEur, diff, pop:D.pop})
-    .map(([n,h,p])=>`<div class="fact"><span class="n">${n}</span><div><h3>${h}</h3><p>${p}</p></div></div>`).join("");
-}
-
-/* Scelta del Comune */
-const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
-let INDEX = [];
-async function loadComuni(){
-  if (COMUNI) return;
-  const res = await fetch("comuni-12mesi.json");
-  if (!res.ok) throw new Error("load");
-  COMUNI = await res.json();
-  const so = new Array(C_OUT.length).fill(0), si = new Array(C_IN.length).fill(0); let pop = 0;
-  for (const r of COMUNI){ pop += r[3]; r[4].forEach((v,j)=>so[j]+=v); r[5].forEach((v,j)=>si[j]+=v); }
-  AVG = {o:so.map(v=>v/pop), i:si.map(v=>v/pop)};
-  INDEX = COMUNI.map((r,k)=>[norm(r[0]),k]);
-}
-function search(){
-  const q = norm($("q").value), box = $("results");
-  if (!COMUNI) return;
-  let hits;
-  if (!q) hits = [...INDEX].sort((a,b)=>COMUNI[b[1]][3]-COMUNI[a[1]][3]).slice(0,20);
-  else {
-    const starts = INDEX.filter(([n])=>n.startsWith(q)), inside = INDEX.filter(([n])=>!n.startsWith(q) && n.includes(q));
-    hits = [...starts.sort((a,b)=>COMUNI[b[1]][3]-COMUNI[a[1]][3]), ...inside].slice(0,60);
-  }
-  if (!hits.length){ box.innerHTML = `<p>Nessun Comune trovato con questo nome.</p>`; return; }
-  box.innerHTML = (!q ? `<p style="padding:4px 0 10px;text-align:left">I più popolosi. Scrivi per cercare tra ${COMUNI.length.toLocaleString("it-IT")} Comuni.</p>` : "") +
-    hits.map(([,k])=>{ const r = COMUNI[k]; const nice = r[0].toLowerCase().replace(/(^|[\s'\-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
-      return `<button type="button" data-k="${k}"><div><b>${nice}</b> <span>${r[1]}</span></div><small>${r[3].toLocaleString("it-IT")} ab.</small></button>`; }).join("");
-  box.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ closeModal(); printAndShow(comuneData(COMUNI[+b.dataset.k])); }));
-}
-let lastFocus = null;
-async function openModal(){
-  lastFocus = document.activeElement;
-  $("modal").hidden = false; $("q").value = ""; $("q").focus();
-  try { await loadComuni(); search(); }
-  catch(e){ $("results").innerHTML = `<p>Non riesco a caricare l'elenco dei Comuni. Ricarica la pagina e riprova.</p>`; }
-}
-function closeModal(){ $("modal").hidden = true; if (lastFocus) lastFocus.focus(); }
-$("q").addEventListener("input", search);
-$("q").addEventListener("keydown", e=>{ if (e.key==="Enter"){ const b = $("results").querySelector("button"); if (b) b.click(); } });
-$("close").addEventListener("click", closeModal);
-$("modal").addEventListener("click", e=>{ if (e.target === $("modal")) closeModal(); });
-document.addEventListener("keydown", e=>{ if (e.key==="Escape" && !$("modal").hidden) closeModal(); });
-
-$("go").addEventListener("click", ()=>printAndShow(ITALIA));
-$("pick").addEventListener("click", openModal);
-$("again").addEventListener("click", ()=> current.comune ? openModal() : show("s-intro"));
-$("toItaly").addEventListener("click", ()=>{ render(ITALIA); window.scrollTo({top:0}); });
-
 </script>
+</body>
+</html>
